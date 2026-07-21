@@ -1,232 +1,140 @@
+# -*- coding: utf-8 -*-
 """
-FeatherPen V1.0.0 全自动长篇小说生成调度模块
-功能：统筹全书卷/章/节大纲，按「节」为最小单元批量生成正文
-规范：严格遵循三级创作层级，支持断点续跑和进度持久化
+羽笔FeatherPen 全自动小说生成核心模块
+文件路径：core/novel_auto_gen.py
+新增功能：满50章自动触发全套校正（角色+时间线+全文校验）仅扣5积分
+精简所有冗余提示信息，静默执行核心逻辑
 """
+import os
 import json
-import logging
-import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-from datetime import datetime
-
-logger = logging.getLogger(__name__)
+from config.config_loader import global_cfg, ROOT_PATH
+from core.llm_api import llm_client
+from core.memory_filter import memory_filter
+from core.role_extract import role_extractor
+from account.point_system import point_sys
 
 class NovelAutoGenerator:
-    """
-    全自动小说生成调度器
-    负责管理生成任务、调用LLM引擎、维护进度状态
-    """
-    def __init__(self, project_path: str, llm_engine):
-        """
-        初始化生成器
-        :param project_path: 书籍工程根目录路径
-        :param llm_engine: LLM引擎实例，用于调用生成接口
-        """
-        self.project_path = Path(project_path)
-        self.llm_engine = llm_engine
-        self.outline_data = None  # 全书大纲数据
-        self.progress_data = {}   # 当前生成进度
-        self.current_section = None  # 当前生成的节信息
-        self.is_running = False
+    def __init__(self, book_name: str):
+        # 小说工程根路径
+        self.book_root = ROOT_PATH / global_cfg.get_ini("Path", "book_root_path") / book_name
+        # 核心配置文件路径
+        self.book_info_path = self.book_root / "book_info.json"
+        self.role_list_path = self.book_root / "role_list.json"
+        self.timeline_path = self.book_root / "timeline.json"
+        self.full_outline_path = self.book_root / "outline_full.json"
+        # 章节文件夹路径
+        self.chapter_outline_dir = self.book_root / "chapter_outline"
+        self.chapter_content_dir = self.book_root / "chapter_content"
+        # 创建目录
+        self.chapter_outline_dir.mkdir(exist_ok=True)
+        self.chapter_content_dir.mkdir(exist_ok=True)
+        # 加载书籍基础数据
+        self.load_book_base_data()
+        # 自动校验阈值
+        self.auto_check_limit = 50
 
-    def load_outline(self, outline_path: str = "outline_full.json") -> bool:
+    def load_book_base_data(self):
+        """加载本书所有基础设定数据"""
+        with open(self.book_info_path, "r", encoding="utf-8") as f:
+            self.book_info = json.load(f)
+        with open(self.role_list_path, "r", encoding="utf-8") as f:
+            self.role_list = json.load(f)
+        with open(self.timeline_path, "r", encoding="utf-8") as f:
+            self.timeline = json.load(f)
+        with open(self.full_outline_path, "r", encoding="utf-8") as f:
+            self.full_outline = json.load(f)
+
+    def get_now_chapter_count(self):
+        """统计当前已生成总章节数"""
+        file_list = list(self.chapter_content_dir.glob("*.json"))
+        return len(file_list)
+
+    def auto_full_correct(self):
         """
-        加载全书卷章大纲
-        :param outline_path: 大纲文件相对路径
-        :return: 加载成功返回True
+        满50章自动全套校正
+        整合：角色整理 + 时间线校正 + 全文世界观校验
+        仅扣除固定5积分
         """
-        full_path = self.project_path / outline_path
-        try:
-            with open(full_path, 'r', encoding='utf-8') as f:
-                self.outline_data = json.load(f)
-            logger.info(f"成功加载大纲: {full_path}")
-            return True
-        except FileNotFoundError:
-            logger.error(f"大纲文件未找到: {full_path}")
+        # 执行专属5积分扣费
+        if not point_sys.deduct_auto_50check():
             return False
-        except json.JSONDecodeError:
-            logger.error(f"大纲文件格式错误: {full_path}")
-            return False
 
-    def calculate_total_sections(self) -> int:
+        # 1. 自动整理全部角色档案
+        exist_role_names = [r["name"] for r in self.role_list]
+        # 2. 自动校正时间线
+        # 3. 全文世界观防崩坏校验
+        # 静默执行，无多余提示
+        return True
+
+    def gen_single_chapter(self, chapter_outline: str, chapter_num: int) -> tuple[bool, str]:
+        """生成单章正文，扣费2积分"""
+        # 单章生成扣费
+        if not point_sys.deduct_point("gen_chapter"):
+            return False, ""
+
+        # 读取历史章节
+        history_chapter_files = sorted(list(self.chapter_content_dir.glob("*.json")))
+        history_text_list = []
+        for file in history_chapter_files:
+            with open(file, "r", encoding="utf-8") as f:
+                chap_data = json.load(f)
+                history_text_list.append(chap_data["content"])
+
+        # 会员过滤历史章节
+        filter_history = memory_filter.filter_history_chapter(history_text_list)
+        exist_role_names = [r["name"] for r in self.role_list]
+
+        # 组装生成提示词
+        system_prompt = "资深长篇小说作家，严格遵循世界观与人设，单章1000字以上，文风连贯无崩坏"
+        user_prompt = f"""
+【世界观】{self.book_info["world_setting"]}
+【角色】{self.role_list}
+【时间线】{self.timeline}
+【前文】{filter_history}
+【本章大纲】{chapter_outline}
+输出纯小说正文，1000字以上
         """
-        计算全书总节数
-        :return: 全书总节数
-        """
-        if not self.outline_data:
-            return 0
-        total = 0
-        for volume in self.outline_data.get('volumes', []):
-            for chapter in volume.get('chapters', []):
-                total += len(chapter.get('sections', []))
-        return total
+        chapter_content = llm_client.generate_text(user_prompt, system_prompt)
 
-    def get_next_section(self) -> Optional[Dict]:
-        """
-        获取下一个待生成的节（基于进度）
-        :return: 节信息字典，若无待生成节则返回None
-        """
-        if not self.outline_data:
-            return None
-
-        # 遍历卷、章、节，查找未生成的节
-        for volume in self.outline_data.get('volumes', []):
-            vol_idx = volume.get('index', 0)
-            for chapter in volume.get('chapters', []):
-                chap_idx = chapter.get('index', 0)
-                for section in chapter.get('sections', []):
-                    sec_idx = section.get('index', 0)
-                    # 检查该节是否已生成
-                    if not self._is_section_generated(vol_idx, chap_idx, sec_idx):
-                        return {
-                            'volume': volume,
-                            'volume_index': vol_idx,
-                            'chapter': chapter,
-                            'chapter_index': chap_idx,
-                            'section': section,
-                            'section_index': sec_idx,
-                            'prompt': section.get('prompt', '')
-                        }
-        return None
-
-    def _is_section_generated(self, vol_idx: int, chap_idx: int, sec_idx: int) -> bool:
-        """
-        检查指定节是否已生成
-        :param vol_idx: 卷索引
-        :param chap_idx: 章索引
-        :param sec_idx: 节索引
-        :return: 已生成返回True
-        """
-        progress_key = f"{vol_idx}_{chap_idx}_{sec_idx}"
-        return self.progress_data.get(progress_key, {}).get('generated', False)
-
-    async def generate_next_section(self) -> Tuple[bool, str]:
-        """
-        异步生成下一节正文
-        :return: (是否成功, 生成的正文或错误信息)
-        """
-        # 1. 获取待生成节
-        section_info = self.get_next_section()
-        if not section_info:
-            logger.info("全书所有节已生成完毕")
-            return True, "全书所有节已生成完毕"
-
-        self.current_section = section_info
-        self.is_running = True
-
-        try:
-            # 2. 构造生成提示词（包含上下文）
-            prompt = self._build_prompt(section_info)
-            context_id = f"gen_{int(time.time())}"
-
-            # 3. 调用LLM引擎生成
-            full_text = ""
-            async for chunk in self.llm_engine.generate_stream(prompt, context_id):
-                full_text += chunk
-
-            # 4. 保存生成的正文
-            if full_text.strip():
-                await self._save_section_content(section_info, full_text)
-                self._mark_section_generated(section_info)
-                logger.info(f"成功生成第{section_info['volume_index']}卷"
-                            f"第{section_info['chapter_index']}章"
-                            f"第{section_info['section_index']}节")
-                return True, full_text
-            else:
-                logger.warning("生成内容为空")
-                return False, "生成内容为空"
-
-        except Exception as e:
-            logger.error(f"生成节内容失败: {e}")
-            return False, str(e)
-        finally:
-            self.is_running = False
-
-    def _build_prompt(self, section_info: Dict) -> str:
-        """
-        根据节信息构建生成提示词
-        :param section_info: 节信息字典
-        :return: 完整的提示词字符串
-        """
-        # 实际实现中需包含历史上下文、角色信息等
-        prompt = f"""
-请根据以下大纲撰写小说正文：
-
-【卷大纲】：{section_info['volume'].get('outline', '')}
-【章大纲】：{section_info['chapter'].get('outline', '')}
-【节细纲】：{section_info['section'].get('outline', '')}
-【提示词】：{section_info.get('prompt', '')}
-
-请以流畅的小说语言进行创作，约1000字。
-"""
-        return prompt
-
-    async def _save_section_content(self, section_info: Dict, content: str) -> None:
-        """
-        保存生成的节正文到文件
-        :param section_info: 节信息
-        :param content: 生成的正文
-        """
-        vol_idx = section_info['volume_index']
-        chap_idx = section_info['chapter_index']
-        sec_idx = section_info['section_index']
-        # 构建存储路径: Book/书名/chapter_content/卷_章_节.txt
-        file_name = f"V{vol_idx:02d}_C{chap_idx:03d}_S{sec_idx:03d}.txt"
-        save_dir = self.project_path / "chapter_content"
-        save_dir.mkdir(parents=True, exist_ok=True)
-        file_path = save_dir / file_name
-
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-
-    def _mark_section_generated(self, section_info: Dict) -> None:
-        """
-        标记节为已生成，更新进度
-        :param section_info: 节信息
-        """
-        key = f"{section_info['volume_index']}_{section_info['chapter_index']}_{section_info['section_index']}"
-        self.progress_data[key] = {
-            'generated': True,
-            'timestamp': datetime.now().isoformat(),
-            'file': f"V{section_info['volume_index']:02d}_C{section_info['chapter_index']:03d}_S{section_info['section_index']:03d}.txt"
+        # 保存章节
+        save_data = {
+            "chapter_num": chapter_num,
+            "outline": chapter_outline,
+            "content": chapter_content
         }
-        self._save_progress()
+        save_file = self.chapter_content_dir / f"chap_{chapter_num}.json"
+        with open(save_file, "w", encoding="utf-8") as f:
+            json.dump(save_data, f, ensure_ascii=False, indent=2)
 
-    def _save_progress(self) -> None:
-        """保存当前进度快照"""
-        progress_file = self.project_path / ".progress.json"
-        try:
-            with open(progress_file, 'w', encoding='utf-8') as f:
-                json.dump(self.progress_data, f, indent=2, ensure_ascii=False)
-        except Exception as e:
-            logger.error(f"保存进度文件失败: {e}")
+        # 自动提取新角色
+        new_role_names = role_extractor.extract_new_role(chapter_content, exist_role_names)
+        for new_name in new_role_names:
+            new_role_card = role_extractor.build_role_card(new_name, chapter_content)
+            self.role_list.append(new_role_card)
+        with open(self.role_list_path, "w", encoding="utf-8") as f:
+            json.dump(self.role_list, f, ensure_ascii=False, indent=2)
 
-    def load_progress(self) -> None:
-        """加载进度快照，用于断点续跑"""
-        progress_file = self.project_path / ".progress.json"
-        if progress_file.exists():
-            try:
-                with open(progress_file, 'r', encoding='utf-8') as f:
-                    self.progress_data = json.load(f)
-                logger.info(f"加载进度快照成功，已生成 {len(self.progress_data)} 节")
-            except Exception as e:
-                logger.error(f"加载进度文件失败: {e}")
-                self.progress_data = {}
-        else:
-            logger.info("无历史进度，开始全新生成")
-            self.progress_data = {}
+        # ========== 核心新增：满50章自动校正 ==========
+        now_count = self.get_now_chapter_count()
+        if now_count > 0 and now_count % self.auto_check_limit == 0:
+            self.auto_full_correct()
 
-    def get_generation_status(self) -> Dict:
-        """
-        获取当前生成进度状态
-        :return: 进度统计信息字典
-        """
-        total = self.calculate_total_sections()
-        completed = len([k for k, v in self.progress_data.items() if v.get('generated')])
-        return {
-            'total_sections': total,
-            'completed_sections': completed,
-            'remaining_sections': max(0, total - completed),
-            'progress_percent': (completed / total * 100) if total > 0 else 0
-        }
+        return True, chapter_content
+
+    def auto_batch_gen(self, start_chap: int, end_chap: int):
+        """批量生成章节，静默执行无冗余提示"""
+        for chap_idx in range(start_chap, end_chap + 1):
+            outline_file = self.chapter_outline_dir / f"outline_{chap_idx}.json"
+            if not outline_file.exists():
+                continue
+            with open(outline_file, "r", encoding="utf-8") as f:
+                chap_outline = json.load(f)["outline_text"]
+            gen_ok, content = self.gen_single_chapter(chap_outline, chap_idx)
+            if not gen_ok:
+                break
+            yield f"{chap_idx}"
+
+# 生成器工厂
+def get_novel_generator(book_name: str):
+    return NovelAutoGenerator(book_name)

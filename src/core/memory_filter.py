@@ -1,21 +1,47 @@
 # -*- coding: utf-8 -*-
 """
-上下文智能筛选模块 V1.0.0
-功能：根据用户会员等级，自动过滤历史章节、大纲投喂数量
-严格匹配各等级创作上限规则，防止上下文溢出
+上下文素材智能过滤模块
+文件路径：core/memory_filter.py
+根据会员等级限制投喂历史章节、大纲数量，过滤无关角色减少token溢出
 """
-from src.account.member_ctrl import get_user_level_info
+from account.member_ctrl import member_ctrl
 
-def filter_history_context(user_level: int, all_chapter: list, all_outline: list):
-    """
-    筛选当前用户可使用的历史上下文数据
-    :param user_level: 用户会员等级
-    :param all_chapter: 全部历史章节列表
-    :param all_outline: 全部历史大纲列表
-    :return: 筛选后的可用章节、大纲数据
-    """
-    level_info = get_user_level_info(user_level)
-    # 按等级上限截取最新的历史数据
-    filter_chapter = all_chapter[-level_info["max_send_chapter"]:] if all_chapter else []
-    filter_outline = all_outline[-level_info["max_send_outline"]:] if all_outline else []
-    return filter_chapter, filter_outline
+class MemoryFilter:
+    def __init__(self):
+        # 获取当前用户会员限制
+        self.user_limit = member_ctrl.get_user_limit()
+
+    def filter_history_chapter(self, all_chapter_list: list) -> list:
+        """
+        过滤历史章节，只保留会员允许的最新章节
+        :param all_chapter_list: 全书所有章节正文列表（按顺序）
+        :return: 截取后的最新章节列表
+        """
+        max_send = self.user_limit["max_send_chapter"]
+        if len(all_chapter_list) <= max_send:
+            return all_chapter_list
+        # 截取末尾N章最新内容，减少上下文长度
+        return all_chapter_list[-max_send:]
+
+    def filter_outline(self, all_outline_list: list) -> list:
+        """过滤章节大纲，控制投喂大纲数量上限"""
+        max_outline = self.user_limit["max_send_outline"]
+        if len(all_outline_list) <= max_outline:
+            return all_outline_list
+        return all_outline_list[-max_outline:]
+
+    def filter_unused_role(self, all_role_list: list, current_chapter_char_names: list) -> list:
+        """
+        过滤不出场角色，仅保留本章出场角色投喂模型，节省token
+        :param all_role_list: 全书全部角色卡
+        :param current_chapter_char_names: 当前章节出现的角色名列表
+        :return: 仅出场角色的角色卡列表
+        """
+        res = []
+        for role in all_role_list:
+            if role["name"] in current_chapter_char_names:
+                res.append(role)
+        return res
+
+# 全局过滤实例
+memory_filter = MemoryFilter()
