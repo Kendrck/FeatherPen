@@ -1,11 +1,19 @@
+# FeatherPen V1.0.0 Python项目标准化构建配置
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "FeatherPen"
 version = "1.0.0"
-author = "Kendrck"
-description = "AI全自动长篇小说生成工具（离线优先跨端版）"
-python-requires = "==3.14"
+authors = [{ name = "Kendrck" }]
+description = "本地离线优先跨平台AI长篇小说生成工具"
+requires-python = ">=3.10"
 dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0.0",
+  "black>=24.0.0",
+  "flake8>=6.0.0"
+]

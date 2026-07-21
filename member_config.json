@@ -1,23 +1,80 @@
 {
-  "desc": "FeatherPen V1.0.0 十级会员权限、积分、账号核心配置，含离线Lv0、登录Lv1强制规则，账号状态自动检测、无上限内测权限",
-  "default_member_list": [
-    {"level": 1, "uid": "11111111", "pwd": "administrator", "point": 999999999, "desc": "Lv1初闻会员"},
-    {"level": 2, "uid": "22222222", "pwd": "administrator", "point": 999999999, "desc": "Lv2薄名会员"},
-    {"level": 3, "uid": "33333333", "pwd": "administrator", "point": 999999999, "desc": "Lv3浅露会员"},
-    {"level": 4, "uid": "44444444", "pwd": "administrator", "point": 999999999, "desc": "Lv4知名会员"},
-    {"level": 5, "uid": "55555555", "pwd": "administrator", "point": 999999999, "desc": "Lv5显赫会员"},
-    {"level": 6, "uid": "66666666", "pwd": "administrator", "point": 999999999, "desc": "Lv6盛传会员"},
-    {"level": 7, "uid": "77777777", "pwd": "administrator", "point": 999999999, "desc": "Lv7昭著会员"},
-    {"level": 8, "uid": "88888888", "pwd": "administrator", "point": 999999999, "desc": "Lv8传奇会员"},
-    {"level": 9, "uid": "99999999", "pwd": "administrator", "point": 999999999, "desc": "Lv9不朽满级特权账号"},
-    {"level": 9, "uid": "00000000", "pwd": "administrator", "point": 999999999, "desc": "Lv9不朽超级管理员账号"}
+  "desc": "云端白名单10个固定测试账号，登录自动分配对应等级权限，Lv9支持扣费开关控制",
+  "test_account_uid": [
+    {
+      "level": 1,
+      "uid": "11111111",
+      "pwd": "administrator",
+      "point": 999999999,
+      "desc": "Lv1初闻白名单测试账号"
+    },
+    {
+      "level": 2,
+      "uid": "22222222",
+      "pwd": "administrator",
+      "point": 999999999,
+      "desc": "Lv2薄名白名单测试账号"
+    },
+    {
+      "level": 3,
+      "uid": "33333333",
+      "pwd": "administrator",
+      "point": 999999999,
+      "desc": "Lv3浅露白名单测试账号"
+    },
+    {
+      "level": 4,
+      "uid": "44444444",
+      "pwd": "administrator",
+      "point": 999999999,
+      "desc": "Lv4知名白名单测试账号"
+    },
+    {
+      "level": 5,
+      "uid": "55555555",
+      "pwd": "administrator",
+      "point": 999999999,
+      "desc": "Lv5显赫白名单测试账号"
+    },
+    {
+      "level": 6,
+      "uid": "66666666",
+      "pwd": "administrator",
+      "point": 999999999,
+      "desc": "Lv6盛传白名单测试账号"
+    },
+    {
+      "level": 7,
+      "uid": "77777777",
+      "pwd": "administrator",
+      "point": 999999999,
+      "desc": "Lv7昭著白名单测试账号"
+    },
+    {
+      "level": 8,
+      "uid": "88888888",
+      "pwd": "administrator",
+      "point": 999999999,
+      "desc": "Lv8传奇白名单测试账号"
+    },
+    {
+      "level": 9,
+      "uid": "99999999",
+      "pwd": "administrator",
+      "point": 999999999,
+      "desc": "Lv9不朽白名单特权账号1"
+    },
+    {
+      "level": 9,
+      "uid": "00000000",
+      "pwd": "administrator",
+      "point": 999999999,
+      "desc": "Lv9不朽白名单特权账号2"
+    }
   ],
-  "auto_rule": {
-    "check_chapter_limit": 50,
-    "auto_check_cost": 5,
-    "auto_check_switch": true,
-    "auto_account_status_check": true,
-    "status_check_interval": 3
+  "cloud_privilege": {
+    "lv9_uid_list": ["99999999", "00000000"],
+    "skip_point_deduct": true
   },
   "point_cost": {
     "gen_chapter": 2,
@@ -25,145 +82,75 @@
     "gen_timeline": 3,
     "full_check": 10
   },
-  "offline_rule": {
-    "bind_mboard_id": true,
-    "daily_point_limit": 10,
-    "init_point": 100,
-    "point_only_consume": true
-  },
   "member_level": [
     {
       "level": 0,
       "level_name": "Lv0 无名（离线账号）",
-      "max_send_chapter": 2,
-      "max_send_outline": 4,
       "max_output_chapter": 1,
       "world_check": false,
-      "monitor_full_data": true,
-      "monitor_token_detail": true,
-      "monitor_ai_progress": true,
-      "monitor_history_replay": true,
-      "init_point": 100,
-      "daily_point_limit": 10,
-      "desc": "离线主板ID绑定，积分只扣不加、日消耗上限10，全监控权限全开，全校验功能开放"
+      "monitor_full_data": true
     },
     {
       "level": 1,
-      "level_name": "Lv1 初闻（登录最低等级）",
-      "max_send_chapter": 2,
-      "max_send_outline": 4,
+      "level_name": "Lv1 初闻",
       "max_output_chapter": 1,
       "world_check": true,
-      "monitor_full_data": false,
-      "monitor_token_detail": false,
-      "monitor_ai_progress": false,
-      "monitor_history_replay": false,
-      "init_point": 200,
-      "desc": "基础人设一致性检测，监控权限全关，全校验功能开放"
+      "monitor_full_data": false
     },
     {
       "level": 2,
       "level_name": "Lv2 薄名",
-      "max_send_chapter": 3,
-      "max_send_outline": 6,
       "max_output_chapter": 5,
       "world_check": true,
-      "monitor_full_data": false,
-      "monitor_token_detail": true,
-      "monitor_ai_progress": false,
-      "monitor_history_replay": false,
-      "desc": "人物关系自动修正，仅开放Token明细监控，全校验功能开放"
+      "monitor_token_detail": true
     },
     {
       "level": 3,
       "level_name": "Lv3 浅露",
-      "max_send_chapter": 10,
-      "max_send_outline": 20,
       "max_output_chapter": 10,
       "world_check": true,
-      "monitor_full_data": false,
-      "monitor_token_detail": true,
-      "monitor_ai_progress": true,
-      "monitor_history_replay": false,
-      "desc": "基础时间线校验+人物关系自动修正，开放Token+AI进度监控，全校验功能开放"
+      "monitor_ai_progress": true
     },
     {
       "level": 4,
       "level_name": "Lv4 知名",
-      "max_send_chapter": 20,
-      "max_send_outline": 40,
       "max_output_chapter": 50,
-      "world_check": true,
-      "monitor_full_data": false,
-      "monitor_token_detail": true,
-      "monitor_ai_progress": true,
-      "monitor_history_replay": false,
-      "desc": "支线剧情一致性校验，开放全量Token+AI进度监控，全校验功能开放"
+      "world_check": true
     },
     {
       "level": 5,
       "level_name": "Lv5 显赫",
-      "max_send_chapter": 30,
-      "max_send_outline": 60,
       "max_output_chapter": 100,
       "world_check": true,
-      "monitor_full_data": true,
-      "monitor_token_detail": true,
-      "monitor_ai_progress": true,
-      "monitor_history_replay": true,
-      "desc": "全局时间线纠错，全监控权限全开，全校验功能开放"
+      "monitor_full_data": true
     },
     {
       "level": 6,
       "level_name": "Lv6 盛传",
-      "max_send_chapter": 40,
-      "max_send_outline": 80,
       "max_output_chapter": 200,
       "world_check": true,
-      "monitor_full_data": true,
-      "monitor_token_detail": true,
-      "monitor_ai_progress": true,
-      "monitor_history_replay": true,
-      "desc": "伏笔留存校验，全监控权限全开，全校验功能开放"
+      "monitor_full_data": true
     },
     {
       "level": 7,
       "level_name": "Lv7 昭著",
-      "max_send_chapter": 50,
-      "max_send_outline": 90,
       "max_output_chapter": 500,
       "world_check": true,
-      "monitor_full_data": true,
-      "monitor_token_detail": true,
-      "monitor_ai_progress": true,
-      "monitor_history_replay": true,
-      "desc": "长篇人设固化防吃书，全监控权限全开，全校验功能开放"
+      "monitor_full_data": true
     },
     {
       "level": 8,
       "level_name": "Lv8 传奇",
-      "max_send_chapter": 60,
-      "max_send_outline": 100,
       "max_output_chapter": 1000,
       "world_check": true,
-      "monitor_full_data": true,
-      "monitor_token_detail": true,
-      "monitor_ai_progress": true,
-      "monitor_history_replay": true,
-      "desc": "全卷剧情复盘修正，全权限全开，全校验功能开放"
+      "monitor_full_data": true
     },
     {
       "level": 9,
-      "level_name": "Lv9 不朽（满级特权）",
-      "max_send_chapter": 999999,
-      "max_send_outline": 999999,
+      "level_name": "Lv9 不朽",
       "max_output_chapter": 999999,
       "world_check": true,
-      "monitor_full_data": true,
-      "monitor_token_detail": true,
-      "monitor_ai_progress": true,
-      "monitor_history_replay": true,
-      "desc": "无上限创作权限，全部功能、全校验、全量监控权限全开"
+      "monitor_full_data": true
     }
   ]
 }
