@@ -69,3 +69,22 @@ FeatherPen/
 ├── pyproject.toml                # Python项目标准化构建、打包配置文件
 ├── requirements-dev.txt          # 开发环境依赖：单元测试、代码格式化、静态检查工具
 ├── requirements.txt              # 生产环境运行依赖锁定清单
+
+
+FeatherPen/
+├── src/                   # [核心] 业务逻辑层
+│   ├── account/           # 账号、权限、积分逻辑
+│   ├── config/            # 配置加载器
+│   ├── core/              # AI 引擎
+│   ├── database/          # 数据持久化
+│   └── utils/             # 通用工具
+├── ui/                    # [视图] 界面交互层 (PyQt6)
+│   ├── login_ui.py        # 登录页 (含测试账号快捷按钮)
+│   ├── member_panel.py    # 会员面板 (含 Lv9 开关)
+│   └── ...
+├── docs/                  # [文档] 标准化说明文档
+├── data/                  # [数据] 运行时数据 (数据库、书籍)
+├── assets/                # [资源] 图片、多语言包
+├── runtime/               # [运行时] 日志、缓存
+├── tests/                 # [测试] 单元测试用例
+└── main.py                # [入口] 全局唯一启动文件

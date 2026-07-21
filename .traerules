@@ -1,0 +1,61 @@
+# FeatherPen V1.0.0 AI 开发规则 (.traerules)
+
+## 1. 核心架构原则
+- **唯一入口**：全项目仅允许 `main.py` 作为启动入口，禁止在其他模块直接执行 `app.exec()` 或 `sys.exit()`。
+- **分层解耦**：
+  - `src/`：纯业务逻辑，**严禁**导入 `ui/` 下的任何模块。
+  - `ui/`：仅负责界面渲染与事件转发，**严禁**包含业务判断逻辑（如积分计算、权限校验），必须调用 `src/` 接口。
+  - `src/config/`：配置读取必须通过 `ConfigLoader` 单例，**严禁**在业务代码中直接 `open()` 或 `yaml.load()`。
+- **数据流向**：UI -> Controller/Service -> Repository -> Database。禁止 UI 直接操作数据库。
+
+## 2. 文档与代码一致性
+- **接口对齐**：所有 `src/` 下的公开方法，必须在 `docs/API.md` 或 `docs/CONFIG_AND_API_SPEC.md` 中有对应定义。
+- **配置同步**：新增配置项时，必须同步更新 `config.yaml` 和 `member_config.json`，并在 `docs/` 中补充说明。
+- **测试账号**：Lv9 特权账号 UID (`99999999`, `00000000`) 及密码 (`administrator`) 为硬编码白名单，**严禁**修改或移除，除非更新 `docs/YESAPI_ACCOUNT.md`。
+
+## 3. 代码规范与风格
+- **类型提示**：所有函数必须包含完整的 Type Hints（参数与返回值），禁止使用 `Any` 除非绝对必要。
+- **注释规范**：
+  - 模块级：必须包含 `"""模块功能简述\n\n详细说明..."""`。
+  - 函数级：必须使用 Google Style Docstring，包含 `Args`, `Returns`, `Raises`。
+  - 行内注释：仅解释“为什么这么做”，禁止解释“代码在做什么”。
+- **命名规范**：
+  - 类名：`PascalCase` (如 `AccountService`)
+  - 函数/变量：`snake_case` (如 `check_point_deduct`)
+  - 常量：`UPPER_SNAKE_CASE` (如 `LV9_PRIVILEGE_UIDS`)
+  - 私有成员：单下划线前缀 (如 `_current_user`)
+
+## 4. 异常与日志
+- **统一日志**：必须使用 `from src.utils.logger import get_logger`，禁止 `print()` 或 `logging.getLogger()`。
+- **异常处理**：
+  - 业务异常必须继承 `src/core/exceptions.BaseFeatherError`。
+  - UI 层必须捕获所有异常并弹出 `QMessageBox`，禁止程序崩溃。
+  - 数据库操作必须包含事务回滚机制。
+
+## 5. 跨平台与资源
+- **路径处理**：必须使用 `pathlib.Path`，禁止字符串拼接路径。
+- **多语言**：UI 文案必须通过 `src/config/i18n.tr()` 获取，禁止硬编码中文/英文字符串。
+- **资源目录**：图片、字体、语言包必须放在 `assets/` 下，禁止放在 `src/` 或 `ui/` 中。
+
+## 6. 数据库规范
+- **ORM/SQL**：当前使用原生 SQLite + `sqlite3.Row`，禁止引入重型 ORM。
+- **表结构**：所有 `CREATE TABLE` 必须在 `src/database/db_sqlite.py` 的 `_init_tables` 中统一管理。
+- **迁移**：禁止直接修改表结构，必须通过 `data/migrations/` 下的 SQL 脚本或版本控制逻辑处理。
+
+## 7. 禁止事项
+- ❌ 禁止在 `ui/` 中写 `if uid == "99999999": ...` 等业务逻辑。
+- ❌ 禁止在 `main.py` 中写具体业务功能。
+- ❌ 禁止提交 `__pycache__`, `.venv`, `data/*.db`, `runtime/logs/` 到 Git。
+- ❌ 禁止使用 `global` 关键字，必须通过单例或依赖注入传递状态。
+
+## 8. 提交信息规范
+- `feat`: 新功能
+- `fix`: 修复 Bug
+- `docs`: 文档变更
+- `refactor`: 重构（不影响功能）
+- `style`: 格式调整（不影响逻辑）
+- `test`: 测试用例
+- `chore`: 构建/工具/依赖
+
+---
+**AI 执行指令**：在生成或修改代码前，请先检查当前文件是否符合上述规则。若发现违规，请先修正再输出代码。

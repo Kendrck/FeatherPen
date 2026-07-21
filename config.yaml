@@ -26,3 +26,64 @@ monitor:
   hardware_monitor_refresh_sec: 5
   progress_snapshot_sec: 30  # 30秒自动生成创作快照
   log_keep_days: 7  # 日志7天自动清理
+
+  # FeatherPen V1.0.0 全局配置文件
+# 严禁在代码中硬编码以下配置项
+
+system:
+  run_mode: 0          # 0=生产环境, 1=调试模式, 2=沙箱测试
+  soft_name: "FeatherPen"
+  soft_cn_name: "羽笔"
+  soft_version: "1.0.0"
+  db_secret_key: "featherpen_default_secret_key_2024"
+
+signin:
+  yesapi_enable: true
+  test_account_enable: true
+  lv9_skip_point_default: true
+
+point:
+  daily_sign_point: 100
+  ad_reward_point: 50
+  generate_cost_per_section: 10
+
+monitor:
+  ai_monitor_refresh_sec: 5
+  hw_monitor_refresh_sec: 5
+  hw_warning_threshold: 90
+  log_keep_days: 7
+
+  # FeatherPen V1.0.0 全局配置文件
+# 严禁在代码中硬编码以下配置项
+
+system:
+  run_mode: 0          # 0=生产环境, 1=调试模式, 2=沙箱测试
+  soft_name: "FeatherPen"
+  soft_cn_name: "羽笔"
+  soft_version: "1.0.0"
+  db_secret_key: "featherpen_default_secret_key_2024"
+
+signin:
+  yesapi_enable: true
+  test_account_enable: true
+  lv9_skip_point_default: true
+
+point:
+  daily_sign_point: 100
+  ad_reward_point: 50
+  generate_cost_per_section: 10
+
+# [新增] AI 模型配置
+ai_model:
+  mode: "local"        # local=本地模型, cloud=云端API
+  local_base_url: "http://127.0.0.1:1234/v1"
+  local_model_name: "local-gguf-model"
+  cloud_api_key: ""
+  cloud_base_url: "https://api.openai.com/v1"
+  cloud_model_name: "gpt-4o-mini"
+
+monitor:
+  ai_monitor_refresh_sec: 5
+  hw_monitor_refresh_sec: 5
+  hw_warning_threshold: 90
+  log_keep_days: 7

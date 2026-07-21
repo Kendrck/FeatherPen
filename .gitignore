@@ -54,3 +54,40 @@ Thumbs.db
 
 ## CI/CD临时文件
 .github/workflows/tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# 虚拟环境
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 运行时数据 (不入库)
+data/database/*.db
+data/Book/
+runtime/logs/
+runtime/cache/
+runtime/temp/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# Ruff / Black 缓存
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/

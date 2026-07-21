@@ -34,3 +34,34 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+import sys
+
+from PyQt6.QtCore import QFile, QTextStream
+from PyQt6.QtWidgets import QApplication, QMainWindow
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("FeatherPen")
+        self.resize(1200, 800)
+
+        # 1. 设置对象名称 (非常重要！QSS 依赖这个来定位)
+        self.setObjectName("main_window")
+
+        # 2. 加载 QSS 文件
+        style_file = QFile("ui/styles/main.qss")
+        if style_file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
+            stream = QTextStream(style_file)
+            self.setStyleSheet(stream.readAll())
+            style_file.close()
+        else:
+            print("警告：无法加载 main.qss 样式表")
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())

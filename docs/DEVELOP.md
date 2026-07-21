@@ -14,3 +14,15 @@
 
 ## 4. CI/CD自动化
 .github/workflows配置自动单元测试、跨平台打包脚本。
+
+# 开发与调试指南
+
+## 1. 环境初始化
+本项目使用标准 Python 环境，依赖管理基于 `requirements.txt`。
+
+```bash
+# 1. 初始化虚拟环境并安装依赖
+python init_env.py
+
+# 2. 启动主程序
+python main.py
