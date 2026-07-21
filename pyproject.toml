@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "FeatherPen"
+version = "1.0.0"
+author = "Kendrck"
+description = "AI全自动长篇小说生成工具（离线优先跨端版）"
+python-requires = "==3.14"
+dependencies = []

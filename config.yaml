@@ -1,0 +1,73 @@
+# FeatherPen V1.0.0 全局核心配置文件
+# 功能：统一定义系统、模型、监控及路径参数，为项目唯一配置基准
+# 约束：禁止硬编码参数，所有可调参数必须在此文件中定义
+
+system:
+  run_mode: 0  # 系统运行模式：0-本地离线模式
+  soft_name: "FeatherPen"  # 项目英文名称
+  soft_cn_name: "羽笔"  # 项目中文名称
+  soft_version: "1.0.0"  # 项目固定版本号
+  db_secret_key: "FeatherPen2026Secret2026"  # 数据库加密密钥
+
+path:
+  book_root_path: "Book"  # 书籍工程根目录
+  user_config_path: "Book/User/user_setting.json"  # 用户配置文件路径
+  monitor_log_path: "logs/monitor_log"  # 硬件监控日志路径
+  runtime_log_path: "logs/runtime_log"  # 程序运行日志路径
+  token_log_path: "logs/token_flow_log"  # Token流量日志路径
+
+model_core:
+  run_mode: "local_api"  # 模型运行模式：local_api/cloud_api/local_file
+  # 【强制标准地址】本地API唯一合法地址
+  local_api:
+    base_url: "http://127.0.0.1:1234/v1"  # 唯一合法地址，禁止空格、多余后缀
+    model_name: "qwen2.5-14b-instruct-1m"
+    temperature: 0.7
+    context_len: 8192
+    api_key: "local-api-default-key"
+  cloud_api:
+    base_url: ""
+    api_key: ""
+    model_name: ""
+    timeout: 120
+  local_file:
+    gguf_path: ""
+    ctx_len: 8192
+    threads: 8
+    n_gpu_layers: 20
+  model_common:
+    temperature: 0.7
+    max_tokens: 4000
+    top_p: 0.9
+
+signin:
+  super_account: "00000000"  # 超级管理员账号
+  super_password: "Administrator"  # 超级管理员密码
+  qr_login_switch: 0
+  login_history_save: 1
+
+point:
+  daily_sign_point: 100
+  ad_reward_point: 50
+  recharge_switch: 0
+
+database:
+  db_path: "featherpen.db"
+  login_history_record: 1
+  monitor_data_save: 1
+
+crypto:
+  aes_key: "FeatherPen20260719"  # AES加密密钥
+
+monitor:
+  monitor_enable: 1  # 监控总开关
+  ai_monitor_refresh_sec: 1  # AI进度/Token刷新间隔 (1-999)
+  hardware_monitor_refresh_sec: 5  # 硬件监控刷新间隔 (1-999)
+  gpu_monitor_enable: 1
+  monitor_log_save: 1
+  token_flow_log: 1
+  progress_snapshot_sec: 30  # 进度快照保存间隔
+  log_keep_days: 7  # 日志自动清理天数
+  cpu_warn_threshold: 90
+  mem_warn_threshold: 90
+  gpu_warn_threshold: 95

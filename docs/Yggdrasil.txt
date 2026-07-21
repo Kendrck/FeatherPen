@@ -1,0 +1,100 @@
+FeatherPen/
+# GitHub 仓库一级目录（仅保留工程化必需入口，无任何散乱文件）
+├── .gitignore               # Git 忽略规则配置
+├── LICENSE                  # 开源许可证文件
+├── pyproject.toml           # Python 项目标准化构建配置
+├── requirements.txt         # 生产环境依赖清单
+├── requirements-dev.txt     # 开发环境依赖清单（测试/格式化/Lint）
+├── init_env.py              # 跨平台环境一键初始化脚本
+├── .github/                 # GitHub 自动化工作流目录
+│   └── workflows/           # CI/CD 构建、打包、发布自动化脚本
+├── docs/                    # 所有说明文档统一归档目录（二级集中管理）
+│   ├── README.md            # 项目总览、快速开始、使用指南
+│   ├── CHANGELOG.md         # 版本迭代更新日志
+│   ├── COMPATIBILITY.md     # 跨平台兼容性说明文档
+│   ├── CONTRIBUTING.md      # 开发者贡献协作规范
+│   ├── STRUCTURE.md         # 项目目录结构说明
+│   ├── DEVELOP.md           # 本地开发环境搭建指南
+│   ├── API.md               # AI 模型接口对接规范
+│   └── TEMPLATE.md          # 小说章节写作模板规范
+├── src/                     # 核心源码主包（二级目录，业务逻辑入口）
+│   ├── __init__.py          # 源码包标识与公共接口导出
+│   ├── account/             # 账号与会员权限体系模块
+│   │   ├── __init__.py
+│   │   ├── account_login.py
+│   │   ├── member_ctrl.py
+│   │   └── point_system.py
+│   ├── config/              # 全局配置加载模块
+│   │   ├── __init__.py
+│   │   └── config_loader.py
+│   ├── core/                # AI 创作核心引擎模块
+│   │   ├── __init__.py
+│   │   ├── llm_api.py
+│   │   ├── memory_filter.py
+│   │   ├── role_extract.py
+│   │   ├── novel_auto_gen.py
+│   │   ├── world_check.py
+│   │   └── progress_monitor.py
+│   ├── database/            # 数据持久化模块
+│   │   ├── __init__.py
+│   │   ├── db_sqlite.py
+│   │   └── monitor_db.py
+│   └── utils/               # 通用工具库模块
+│       ├── __init__.py
+│       ├── audio/
+│       ├── monitor/
+│       │   ├── hardware_collect.py
+│       │   ├── monitor_scheduler.py
+│       │   └── log_writer.py
+│       ├── process/
+│       └── i18n/
+├── ui/                      # PyQt6 界面模块（二级目录）
+│   ├── __init__.py
+│   ├── main_window.py
+│   ├── login_ui.py
+│   ├── novel_workbench.py
+│   ├── member_panel.py
+│   ├── model_setting_ui.py
+│   └── monitor_dashboard.py
+├── tests/                   # 单元测试与集成测试（二级目录）
+│   ├── __init__.py
+│   ├── account/
+│   └── core/
+├── runtime/                 # 运行时数据总目录（二级统一归档）
+│   ├── logs/                # 全局运行日志目录
+│   │   ├── monitor_log/
+│   │   │   └── monitor.log
+│   │   ├── runtime_log/
+│   │   │   └── runtime.log
+│   │   └── token_flow_log/
+│   │       └── token_flow.log
+│   ├── cache/               # 程序运行缓存目录
+│   └── temp/                # 临时文件目录
+├── data/                    # 用户数据总目录（二级目录）
+│   ├── Book/                # 小说工程数据目录
+│   │   ├── User/
+│   │   │   └── user_setting.json
+│   │   └── [自定义书名]/
+│   │       ├── book_info.json
+│   │       ├── role_list.json
+│   │       ├── timeline.json
+│   │       ├── outline_full.json
+│   │       ├── chapter_outline/
+│   │       ├── chapter_content/
+│   │       └── export/
+│   └── database/            # SQLite 数据库文件存放目录
+├── assets/                  # 静态资源总目录（二级目录）
+│   ├── lib/                 # 多语言翻译资源包
+│   │   ├── zh-CN.json
+│   │   ├── en-US.json
+│   │   ├── fr-FR.json
+│   │   └── es-ES.json
+│   ├── fonts/               # 字体资源
+│   └── images/              # 图标/Logo/界面图片
+├── dist/                    # 各平台发布包目录（二级目录）
+│   ├── FeatherPen.exe       # Windows 成品启动程序
+│   ├── FeatherPen.apk       # Android 安装包
+│   ├── FeatherPen.dep       # Linux 成品依赖包
+│   ├── FeatherPen.AppImage  # Linux 通用单文件程序
+│   └── FeatherPen.dmg       # macOS 安装镜像（预留）
+└── main.py                  # 项目唯一启动入口（二级目录，不提升至一级）
