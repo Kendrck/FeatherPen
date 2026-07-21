@@ -1,5 +1,5 @@
-# FeatherPen V1.0.0 全局系统配置文件
-# 非法参数自动回滚默认值，所有配置项配套业务注释
+# FeatherPen V1.0.0 全局运行配置文件
+# 非法参数自动回滚默认值，所有业务开关统一托管
 system:
   run_mode: 0
   soft_name: "FeatherPen"
@@ -9,22 +9,20 @@ system:
   yesapi_app_key: ""
   yesapi_app_secret: ""
 
-# 登录与测试账号体系配置
+# 登录与测试账号全局开关
 signin:
   yesapi_enable: 1
-  # 全局测试账号总开关，控制登录页10个快捷按钮展示
-  test_account_enable: true
-  # Lv9不朽账号默认积分豁免开关状态
-  lv9_skip_point_default: true
+  test_account_enable: true  # 开启10组固定白名单测试账号
+  lv9_skip_point_default: true  # Lv9账号默认开启积分豁免
 
-# 积分奖励、扣费配置
+# 积分消费、签到奖励配置
 point:
   daily_sign_point: 100
   ad_reward_point: 50
 
-# 后台监控、快照、日志清理配置
+# 硬件监控、快照、日志持久化配置
 monitor:
   ai_monitor_refresh_sec: 1
   hardware_monitor_refresh_sec: 5
-  progress_snapshot_sec: 30
-  log_keep_days: 7
+  progress_snapshot_sec: 30  # 30秒自动生成创作快照
+  log_keep_days: 7  # 日志7天自动清理

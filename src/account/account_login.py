@@ -1,117 +1,62 @@
-# -*- coding: utf-8 -*-
 """
-账号登录状态校验模块 V1.0.0
-核心规则：
-1. 无用户配置文件默认离线Lv0
-2. 登录成功最低等级Lv1
-3. 退出/注销自动回退Lv0离线状态
-功能：登录状态检测、账号注销、权限状态重置
+云端测试账号校验、登录逻辑模块
+接口：/api/v1/account/cloud_login
+职责：匹配白名单UID、下发测试账号标识、区分Lv9特权账号
 """
-import json
-import os
-from src.database.db_sqlite import db_query
+
+from src.account.member_ctrl import get_member_level_rule
+from src.config.config_loader import load_member_config
+
+# 全局缓存会员配置
+MEMBER_CFG = load_member_config()
+WHITE_LIST = MEMBER_CFG["test_account_uid"]
+LV9_UID_LIST = MEMBER_CFG["cloud_privilege"]["lv9_uid_list"]
 
 
-# FeatherPen/src/account/account_login.py
-
-import hashlib
-import requests
-from typing import Optional, Dict, Any
-from src.config.config_loader import get_config
-
-class AccountLogin:
+def match_test_account(input_uid: str, input_pwd: str) -> dict:
     """
-    账号登录与派发核心控制器
-    负责与 YesApi 云端通信，处理账号的登录、状态校验及初始派发
+    校验输入UID+密码是否为白名单测试账号
+    :param input_uid: 用户输入8位UID
+    :param input_pwd: 用户输入登录密码
+    :return: 匹配结果、会员等级、特权标识
     """
-    def __init__(self):
-        self.api_url = "https://api.yesapi.cn/"
-        self.app_key = get_config("YESAPI_APP_KEY")
-        self.app_secret = get_config("YESAPI_APP_SECRET")
+    for item in WHITE_LIST:
+        if item["uid"] == input_uid and item["pwd"] == input_pwd:
+            is_lv9 = input_uid in LV9_UID_LIST
+            return {
+                "match_success": True,
+                "level": item["level"],
+                "is_test_account": True,
+                "is_lv9_privilege": is_lv9,
+                "uid": input_uid,
+                "point": item["point"],
+            }
+    # 无匹配白名单账号
+    return {
+        "match_success": False,
+        "level": 0,
+        "is_test_account": False,
+        "is_lv9_privilege": False,
+    }
 
-    def _generate_sign(self, params: Dict[str, Any]) -> str:
-        """
-        生成 YesApi 请求签名 (安全防篡改)
-        """
-        # 1. 按 key 字典序排序
-        sorted_keys = sorted(params.keys())
-        # 2. 拼接参数
-        str_to_sign = ""
-        for key in sorted_keys:
-            str_to_sign += f"{key}{params[key]}"
-        # 3. 尾部追加 AppSecret 并做 MD5 加密
-        str_to_sign += self.app_secret
-        return hashlib.md5(str_to_sign.encode('utf-8')).hexdigest()
 
-    def login(self, username: str, password: str) -> Dict[str, Any]:
-        """
-        用户登录接口
-        :param username: 8位纯数字账号
-        :param password: 用户密码
-        :return: 包含用户信息、等级、积分的字典
-        """
-        params = {
-            "s": "App.User.Login",
-            "app_key": self.app_key,
-            "username": username,
-            "password": hashlib.md5(password.encode('utf-8')).hexdigest()
-        }
-        params["sign"] = self._generate_sign(params)
-        
-        response = requests.get(self.api_url, params=params).json()
-        if response.get("ret") == 200:
-            return response["data"]["info"]
-        raise Exception(f"登录失败: {response.get('msg', '未知错误')}")
-
-    def get_pending_account(self) -> Optional[str]:
-        """
-        【发牌官逻辑】从云端获取一个待派发的账号
-        """
-        params = {
-            "s": "App.Table.List",
-            "app_key": self.app_key,
-            "model_name": "yesapi_member",
-            "where": '[["account_status","=","pending"]]',
-            "limit": 1
-        }
-        params["sign"] = self._generate_sign(params)
-        response = requests.get(self.api_url, params=params).json()
-        
-        if response.get("ret") == 200 and response["data"].get("list"):
-            return response["data"]["list"][0]["username"]
-        return None
-
-def check_login_status():
+def cloud_login_handler(username: str, password: str, login_type: int) -> dict:
     """
-    检测当前用户登录状态与会员等级
-    :return: is_login(是否登录:bool), user_level(会员等级:int)
+    登录接口核心业务处理 /api/v1/account/cloud_login
+    :param username: UID账号
+    :param password: 明文密码（前端MD5加密后传输）
+    :param login_type: 登录类型 0离线/1云端
+    :return: 标准化返回体，携带权限标识
     """
-    user_config_path = "Book/User/user_setting.json"
-    # 无用户配置文件判定为离线状态
-    if not os.path.exists(user_config_path):
-        return False, 0
-    # 读取用户本地配置
-    with open(user_config_path, "r", encoding="utf-8") as f:
-        user_data = json.load(f)
-    is_login = user_data.get("is_login", False)
-    # 登录状态默认最低Lv1，离线固定Lv0
-    user_level = user_data.get("level", 1) if is_login else 0
-    return is_login, user_level
+    match_res = match_test_account(username, password)
+    level_rule = get_member_level_rule(match_res["level"])
+    skip_deduct_switch = MEMBER_CFG["cloud_privilege"]["skip_point_deduct"]
 
-def user_logout():
-    """
-    用户注销退出登录
-    执行逻辑：重置登录状态、会员等级，自动切换为离线Lv0
-    """
-    user_config_path = "Book/User/user_setting.json"
-    if not os.path.exists(user_config_path):
-        return
-    # 读取原有用户数据
-    with open(user_config_path, "r", encoding="utf-8") as f:
-        user_data = json.load(f)
-    # 重置为离线状态
-    user_data["is_login"] = False
-    user_data["level"] = 0
-    # 写入更新后配置
-    with open(user_config_path, "w", encoding="utf-8") as f:
-        json.dump(user_data, f, ensure_ascii=False, indent=2)
+    return {
+        "code": 200,
+        "msg": "登录成功",
+        "ext_info": level_rule,
+        "is_test_account": match_res["is_test_account"],
+        "is_lv9_privilege": match_res["is_lv9_privilege"],
+        "current_deduct_switch": skip_deduct_switch,
+    }
