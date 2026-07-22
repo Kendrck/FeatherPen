@@ -5,86 +5,105 @@
 # 文档基准优先级：本目录规范 > 全平台兼容性规范 > 初代开发规范文档
 
 FeatherPen/
-├── .github/                      # Github CI/CD自动化流水线目录
-│   └── workflows/                # 打包、校验、发布自动化脚本存放目录
-│       └── (ci自动脚本yml文件)    # 全平台打包、代码检查、发布流程配置
-├── assets/                       # 静态资源根目录，所有前端静态文件统一存放
-│   ├── fonts/                    # 程序自定义字体资源
-│   ├── images/                   # UI图标、界面图片、封面素材
-│   └── lib/                      # 多语言文案包目录【强制】
-│       └── zh-CN.json            # 中文简体多语言配置，登录/会员面板文案统一托管，禁止硬编码文字
-├── data/                         # 用户持久化业务数据目录
-│   ├── Book/                     # 用户创建的小说卷、章、节文本存储目录
-│   └── database/                 # SQLite数据库文件存放目录
-├── dist/                         # 各平台打包输出产物目录（Windows/macOS/Linux/Android）
-├── docs/                         # 项目全套标准化归档文档目录（开发、接口、结构、兼容规范）
-│   ├── ACCOUNT_SPEC.md           # 账号体系补充规范文档
-│   ├── API.md                    # 后端全接口定义、入参出参、业务逻辑规范
-│   ├── CHANGELOG.md              # 版本迭代更新日志
-│   ├── COMPATIBILITY.md          # 全平台统一兼容性规范文档
-│   ├── CONTRIBUTING.md           # 项目贡献、代码提交规范
-│   ├── DEVELOP.md                # 本地开发调试指南、测试账号使用教程
-│   ├── README.md                 # 项目快速上手说明文档
-│   ├── STRUCTURE.md              # 当前仓库目录标准规范文档（本文件）
-│   ├── TEMPLATE.md               # 文档/配置标准化模板文件
-│   └── YESAPI_ACCOUNT.md         # YesApi云端10组白名单测试账号对接完整规范
-├── runtime/                      # 程序运行时临时生成文件目录
-│   ├── cache/                    # AI推理缓存、页面缓存文件
-│   ├── logs/                     # 运行日志，系统自动7天清理旧日志
-│   └── temp/                     # 临时导出、临时缓存文件
-├── sdk/                          # Web/浏览器插件端TS SDK存放目录
-│   └── client.ts                 # 前端SDK：测试账号列表、Lv9开关接口封装
-├── src/                          # Python后端业务内核源码根目录，UI与业务完全解耦【强制】
-│   ├── __init__.py               # Python包初始化标识文件
-│   ├── account/                  # 账号、会员、积分扣费核心模块【统一存放，全平台复用】
-│   │   ├── __init__.py
-│   │   ├── account_login.py      # 云端登录、白名单UID匹配、账号权限下发逻辑
-│   │   ├── member_ctrl.py        # 会员等级权限拦截、Lv9特权判定、扣费开关读写
-│   │   └── point_system.py       # 积分扣费统一入口、Lv9积分豁免控制逻辑
-│   ├── config/                   # 全局配置加载、持久化工具模块
-│   │   ├── __init__.py
-│   │   └── config_loader.py      # 读取config.yaml、member_config.json，持久化开关配置
-│   ├── core/                     # AI长篇小说生成核心引擎（云端API/本地API/GGUF离线三推理模式）
-│   │   └── (引擎相关源码文件)
-│   ├── database/                 # SQLite持久化数据库初始化、CRUD工具
-│   │   └── (数据库操作源码文件)
-│   └── utils/                    # 通用工具集：硬件监控、多语言、快照工具
-│       └── (工具类源码文件)
-├── tests/                        # 单元测试用例目录
-│   ├── account/                  # 账号登录、测试账号、Lv9扣费开关专项测试用例
-│   └── core/                     # AI生成引擎功能测试用例
-├── ui/                           # 客户端图形界面源码目录
+├── .gitignore               # Git版本控制忽略规则
+├── LICENSE                  # 开源许可证文件
+├── pyproject.toml           # Python项目标准化构建配置
+├── requirements.txt         # 生产环境依赖锁定清单
+├── requirements-dev.txt     # 开发环境：单元测试/格式化/静态检查
+├── init_env.py              # 跨平台环境一键初始化脚本
+├── main.py                  # 项目**唯一全局启动入口**
+├── .github/
+│   └── workflows/           # CI/CD跨平台打包自动化脚本
+├── docs/
+│   ├── YESAPI_ACCOUNT.md    # YesApi云端测试账号对接文档
+│   ├── README.md
+│   ├── CHANGELOG.md
+│   ├── STRUCTURE.md
+│   ├── DEVELOP.md
+│   ├── API.md
+│   ├── COMPATIBILITY.md
+│   ├── PRESS_TEST.md        # 【新增】Lv9压测、亿级字数压力测试规范
+│   ├── WORLD_TREE.md        # 【新增】五级世界树创作架构完整说明
+│   └── TEMPLATE.md
+├── src/
 │   ├── __init__.py
-│   ├── login_ui.py               # 登录窗口页面：内置10个测试账号快捷填充按钮
-│   ├── main_window.py            # 程序主窗口入口
-│   ├── member_panel.py           # 会员面板：Lv9积分豁免开关+配套多语言提示文字
-│   ├── model_setting_ui.py       # AI模型推理模式配置界面
-│   └── monitor_dashboard.py      # 硬件+AI进度监控面板（CPU/GPU/内存/Token/进度五维监控）
-├── .gitignore                    # Git版本控制忽略文件清单，屏蔽缓存、日志、打包产物、本地配置
-├── LICENSE                       # 项目开源许可证文件
-├── config.yaml                   # 系统全局运行配置：测试账号总开关、监控参数、签到积分、YesApi密钥
-├── init_env.py                   # 跨平台环境一键初始化脚本（依赖、目录、数据库初始化）
-├── main.py                       # 项目**唯一全局启动入口**，标准化顺序初始化所有模块
-├── member_config.json            # 会员白名单、10组测试账号、Lv9特权配置、各项操作积分消耗定义
-├── pyproject.toml                # Python项目标准化构建、打包配置文件
-├── requirements-dev.txt          # 开发环境依赖：单元测试、代码格式化、静态检查工具
-├── requirements.txt              # 生产环境运行依赖锁定清单
+│   ├── account/
+│   │   ├── __init__.py
+│   │   ├── account_login.py # 云端白名单校验、离线Lv0适配、权限下发
+│   │   ├── member_ctrl.py   # 十级权限拦截、Lv9积分豁免/压测开关判定
+│   │   └── point_system.py  # 积分扣费流水、100节自动校正扣费逻辑
+│   ├── config/
+│   │   ├── __init__.py
+│   │   └── config_loader.py # 配置加载、非法参数回滚、URL自动清洗归一
+│   ├── core/                # AI亿级长篇生成核心引擎【新增分层记忆/区间校正】
+│   │   ├── __init__.py
+│   │   ├── llm_api.py       # 三推理模式统一封装、Token统计、请求重试
+│   │   ├── memory_filter.py # 三层冷热记忆、上下文优先级截断、防溢出核心
+│   │   ├── role_extract.py  # 时序角色提取、分阶段人设存储
+│   │   ├── novel_auto_gen.py# 五级大纲批量生成、全层级插叙、单章5节拦截校验
+│   │   ├── world_check.py   # 100节定点区间校正、人设/时间线/伏笔全校验
+│   │   └── progress_monitor.py # 30秒快照、断点续跑、进度持久化
+│   ├── database/            # SQLite元数据持久化，正文外置TXT分离存储
+│   │   ├── __init__.py
+│   │   ├── db_sqlite.py     # 加密连接池、书籍元数据读写
+│   │   └── monitor_db.py    # 监控/校正/Token日志持久化
+│   └── utils/               # 通用工具、监控、多语言、快照恢复
+│       ├── monitor/
+│       ├── process/
+│       └── i18n/
+├── ui/
+│   ├── __init__.py
+│   ├── main_window.py
+│   ├── login_ui.py          # 登录页10个测试账号快捷按钮、离线隐藏逻辑
+│   ├── novel_workbench.py   # 【新增】五级大纲可视化、单章5节拦截、插叙校正
+│   ├── member_panel.py      # Lv9积分豁免+压测双开关、多语言状态提示
+│   ├── model_setting_ui.py  # URL自动清洗、三模型切换界面
+│   └── monitor_dashboard.py # 固定监控顺序TOK→GEN→CPU→GPU→MEM
+├── tests/
+│   ├── account/             # 账号/积分/开关测试用例
+│   ├── core/                # 校正、记忆分层、批量生成单元测试
+│   └── pressure/            # 【新增】亿级字数极限压测用例
+├── runtime/
+│   ├── logs/                # 监控/运行/Token日志，7天自动清理
+│   ├── cache/               # 冷热记忆临时缓存
+│   └── temp/                # 临时生成文件
+├── data/                    # 【国标修改】原Book迁移至data，源码与用户数据彻底隔离
+│   ├── Book/                # 单本小说独立工程目录
+│   └── database/            # SQLite加密数据库存放目录
+├── assets/
+│   ├── lib/                 # 多语言包（登录/会员/工作台全部文案）
+│   ├── fonts/
+│   └── images/
+└── dist/                    # 各平台打包产物
 
+# FeatherPen 国标项目架构规范（GB/T 8567-2006）
+## 一、架构总则
+1. 项目一、二级目录永久锁定，禁止修改、新增、删除
+2. 仅支持三级及以下目录合规业务拓展
+3. 所有模块分层解耦，符合商用软件工程标准化规范
 
-FeatherPen/
-├── src/                   # [核心] 业务逻辑层
-│   ├── account/           # 账号、权限、积分逻辑
-│   ├── config/            # 配置加载器
-│   ├── core/              # AI 引擎
-│   ├── database/          # 数据持久化
-│   └── utils/             # 通用工具
-├── ui/                    # [视图] 界面交互层 (PyQt6)
-│   ├── login_ui.py        # 登录页 (含测试账号快捷按钮)
-│   ├── member_panel.py    # 会员面板 (含 Lv9 开关)
-│   └── ...
-├── docs/                  # [文档] 标准化说明文档
-├── data/                  # [数据] 运行时数据 (数据库、书籍)
-├── assets/                # [资源] 图片、多语言包
-├── runtime/               # [运行时] 日志、缓存
-├── tests/                 # [测试] 单元测试用例
-└── main.py                # [入口] 全局唯一启动文件
+## 二、固定一级目录职责
+- src：核心业务源码、AI引擎、数据逻辑（核心业务层）
+- ui：桌面可视化交互界面（视图层）
+- docs：国标归档文档（全项目可追溯依据）
+- tests：单元测试用例（质量校验层）
+- runtime：运行缓存、日志、临时文件（运行支撑层）
+- data：项目书籍工程、持久化数据（数据存储层）
+- assets：静态资源、多语言、字体图片（资源层）
+- dist：打包发布产物（发布层）
+
+## 三、世界树五级国标层级
+优先级自上而下不可逆，上层锁定下层剧情规则：
+1. 世界树总纲：全局最高设定、世界观、核心规则（永久锁定）
+2. 卷大纲：单卷主线、冲突、支线边界、登场角色
+3. 章大纲：单章叙事目标、伏笔、收尾逻辑、时间节点
+4. 小节小刚：单节轻量化提纲、远期记忆载体
+5. 小节正文：最终生成内容、积分扣费唯一计量单元
+
+## 四、数据存储国标规范
+1. SQLite数据库：仅存储元数据、大纲、人设、统计数据
+2. TXT外置存储：所有小节正文独立文件存储
+3. 严格隔离结构化数据与大文本数据，实现亿级字数稳定运行
+
+## 五、三级拓展规范
+所有业务拓展、功能迭代、模块新增，必须在二级目录下新建三级文件/目录，禁止篡改顶层架构。

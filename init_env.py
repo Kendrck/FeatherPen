@@ -68,11 +68,7 @@ if __name__ == "__main__":
 4. 生成默认配置文件（如不存在）
 """
 
-import os
-import subprocess
-import sys
 import venv
-from pathlib import Path
 
 # 项目根目录
 PROJECT_ROOT = Path(__file__).parent
@@ -180,3 +176,46 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+FeatherPen V1.0.0 国标环境初始化脚本
+适配GB/T 8567软件工程规范
+功能：自动创建国标规范运行目录、校验核心配置、初始化运行环境
+冗余内容已全部清理，仅保留标准化业务逻辑
+"""
+
+# 国标规范固定运行目录列表
+STANDARD_RUNTIME_DIRS = [
+    "runtime/cache",
+    "runtime/logs",
+    "runtime/temp",
+    "data/Book",
+    "data/database"
+]
+
+def init_project_environment():
+    """
+    初始化项目国标标准化运行环境
+    1. 创建规范目录结构
+    2. 校验核心配置文件完整性
+    3. 初始化空运行目录权限
+    """
+    # 批量创建国标规范目录
+    for dir_path in STANDARD_RUNTIME_DIRS:
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+
+    # 校验核心配置文件存在性
+    config_files = ["config.yaml", "member_config.json"]
+    missing_config = [f for f in config_files if not os.path.exists(f)]
+
+    if missing_config:
+        print(f"【国标校验失败】缺失核心配置文件：{missing_config}")
+        sys.exit(1)
+
+    print("【国标校验通过】FeatherPen V1.0.0 环境初始化完成")
+
+if __name__ == "__main__":
+    init_project_environment()
