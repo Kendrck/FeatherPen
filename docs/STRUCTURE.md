@@ -10,6 +10,12 @@
 # 文档基准优先级：本目录规范 > 全平台兼容性规范 > 初代开发规范文档
 # 架构变更说明：永久移除ui/PyQt6目录，统一采用web/原生HTML + PyWebView桌面壳架构
 
+# FeatherPen V1.0.0 世界树标准仓库完整目录架构文档
+# 排序规则：文件夹优先按字母升序，同层级文件按英文字母升序排列
+# 注释规范：# 后为文件/文件夹标准化业务说明，强制约束加粗标注
+# 文档基准优先级：本目录规范 > 全平台兼容性规范 > 初代开发规范文档
+# 架构变更说明：永久移除ui/PyQt6、electron目录，统一采用web/原生HTML + PyWebView桌面壳架构
+
 FeatherPen/ # 【一级根目录】
 ├── .gitignore               # 一级文件：Git版本忽略配置
 ├── LICENSE                  # 一级文件：开源协议文本
@@ -119,6 +125,17 @@ FeatherPen/ # 【一级根目录】
 │   ├── fonts/ # 【二级文件夹】全局字体
 │   └── images/ # 【二级文件夹】界面图标、Logo
 └── dist/ # 【一级文件夹】CI自动打包全平台离线安装包
+    ├── FeatherPen_羽笔_V1.0.0_Windows_Setup.exe       # Windows标准安装包
+    ├── FeatherPen_羽笔_V1.0.0_Windows_Portable.zip    # Windows绿色便携压缩包
+    ├── FeatherPen_羽笔_V1.0.0_macOS.dmg               # MacOS离线镜像包
+    ├── FeatherPen_羽笔_V1.0.0_Linux.AppImage          # Linux单文件运行包
+    ├── FeatherPen_羽笔_V1.0.0_Linux_amd64.deb         # Debian/Ubuntu安装包
+    ├── FeatherPen_羽笔_V1.0.0_Linux_amd64.rpm         # CentOS/RHEL安装包
+    ├── FeatherPen_羽笔_V1.0.0_Android.apk             # Android移动端APP安装包
+    ├── FeatherPen_羽笔_V1.0.0_Web_Docker.zip          # Web离线Docker部署包
+    ├── FeatherPen_羽笔_V1.0.0_Chrome_Plugin.zip        # Chrome离线插件包
+    └── FeatherPen_羽笔_V1.0.0_VSCode_Plugin.zip       # VSCode离线扩展包
+    
 # FeatherPen 国标项目架构规范（GB/T 8567-2006）
 ## 一、架构总则
 1. 项目一、二级目录永久锁定，禁止修改、新增、删除
