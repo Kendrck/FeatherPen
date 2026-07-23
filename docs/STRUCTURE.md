@@ -4,78 +4,121 @@
 # 注释规范：# 后为文件/文件夹标准化业务说明，强制约束加粗标注
 # 文档基准优先级：本目录规范 > 全平台兼容性规范 > 初代开发规范文档
 
-FeatherPen/
-├── .gitignore               # Git版本控制忽略规则
-├── LICENSE                  # 开源许可证文件
-├── pyproject.toml           # Python项目标准化构建配置
-├── requirements.txt         # 生产环境依赖锁定清单
-├── requirements-dev.txt     # 开发环境：单元测试/格式化/静态检查
-├── init_env.py              # 跨平台环境一键初始化脚本
-├── main.py                  # 项目**唯一全局启动入口**
-├── .github/
-│   └── workflows/           # CI/CD跨平台打包自动化脚本
-├── docs/
-│   ├── YESAPI_ACCOUNT.md    # YesApi云端测试账号对接文档
-│   ├── README.md
-│   ├── CHANGELOG.md
-│   ├── STRUCTURE.md
-│   ├── DEVELOP.md
-│   ├── API.md
-│   ├── COMPATIBILITY.md
-│   ├── PRESS_TEST.md        # 【新增】Lv9压测、亿级字数压力测试规范
-│   ├── WORLD_TREE.md        # 【新增】五级世界树创作架构完整说明
-│   └── TEMPLATE.md
-├── src/
-│   ├── __init__.py
-│   ├── account/
-│   │   ├── __init__.py
-│   │   ├── account_login.py # 云端白名单校验、离线Lv0适配、权限下发
-│   │   ├── member_ctrl.py   # 十级权限拦截、Lv9积分豁免/压测开关判定
-│   │   └── point_system.py  # 积分扣费流水、100节自动校正扣费逻辑
-│   ├── config/
-│   │   ├── __init__.py
-│   │   └── config_loader.py # 配置加载、非法参数回滚、URL自动清洗归一
-│   ├── core/                # AI亿级长篇生成核心引擎【新增分层记忆/区间校正】
-│   │   ├── __init__.py
-│   │   ├── llm_api.py       # 三推理模式统一封装、Token统计、请求重试
-│   │   ├── memory_filter.py # 三层冷热记忆、上下文优先级截断、防溢出核心
-│   │   ├── role_extract.py  # 时序角色提取、分阶段人设存储
-│   │   ├── novel_auto_gen.py# 五级大纲批量生成、全层级插叙、单章5节拦截校验
-│   │   ├── world_check.py   # 100节定点区间校正、人设/时间线/伏笔全校验
-│   │   └── progress_monitor.py # 30秒快照、断点续跑、进度持久化
-│   ├── database/            # SQLite元数据持久化，正文外置TXT分离存储
-│   │   ├── __init__.py
-│   │   ├── db_sqlite.py     # 加密连接池、书籍元数据读写
-│   │   └── monitor_db.py    # 监控/校正/Token日志持久化
-│   └── utils/               # 通用工具、监控、多语言、快照恢复
-│       ├── monitor/
-│       ├── process/
-│       └── i18n/
-├── ui/
-│   ├── __init__.py
-│   ├── main_window.py
-│   ├── login_ui.py          # 登录页10个测试账号快捷按钮、离线隐藏逻辑
-│   ├── novel_workbench.py   # 【新增】五级大纲可视化、单章5节拦截、插叙校正
-│   ├── member_panel.py      # Lv9积分豁免+压测双开关、多语言状态提示
-│   ├── model_setting_ui.py  # URL自动清洗、三模型切换界面
-│   └── monitor_dashboard.py # 固定监控顺序TOK→GEN→CPU→GPU→MEM
-├── tests/
-│   ├── account/             # 账号/积分/开关测试用例
-│   ├── core/                # 校正、记忆分层、批量生成单元测试
-│   └── pressure/            # 【新增】亿级字数极限压测用例
-├── runtime/
-│   ├── logs/                # 监控/运行/Token日志，7天自动清理
-│   ├── cache/               # 冷热记忆临时缓存
-│   └── temp/                # 临时生成文件
-├── data/                    # 【国标修改】原Book迁移至data，源码与用户数据彻底隔离
-│   ├── Book/                # 单本小说独立工程目录
-│   └── database/            # SQLite加密数据库存放目录
-├── assets/
-│   ├── lib/                 # 多语言包（登录/会员/工作台全部文案）
-│   ├── fonts/
-│   └── images/
-└── dist/                    # 各平台打包产物
+# FeatherPen V1.0.0 世界树标准仓库完整目录架构文档
+# 排序规则：文件夹优先按字母升序，同层级文件按英文字母升序排列
+# 注释规范：# 后为文件/文件夹标准化业务说明，强制约束加粗标注
+# 文档基准优先级：本目录规范 > 全平台兼容性规范 > 初代开发规范文档
+# 架构变更说明：永久移除ui/PyQt6目录，统一采用web/原生HTML + PyWebView桌面壳架构
 
+FeatherPen/ # 【一级根目录】
+├── .gitignore               # 一级文件：Git版本忽略配置
+├── LICENSE                  # 一级文件：开源协议文本
+├── pyproject.toml           # 一级文件：Python标准化构建配置
+├── requirements.txt         # 一级文件：生产环境依赖清单（新增pywebview依赖，移除electron/pyqt6）
+├── requirements-dev.txt     # 一级文件：开发/测试依赖
+├── init_env.py              # 一级文件：跨平台一键环境初始化脚本
+├── main.py                  # 一级文件：全局唯一启动入口；同时启动FastAPI + 拉起PyWebView桌面窗口
+├── .github/ # 【一级文件夹】CI/CD自动化打包
+│   └── workflows/ # 【二级文件夹】CI工作流
+│       └── ci_build.yml     # 【三级文件】自动打包脚本，产物输出dist目录
+├── docs/ # 【一级文件夹】项目归档文档库
+│   ├── README.md            # 【二级文件】项目快速上手（标注V1.0纯离线，在线功能V2.0）
+│   ├── CHANGELOG.md         # 【二级文件】全版本迭代日志
+│   ├── STRUCTURE.md         # 【二级文件】世界树目录追溯核心文档
+│   ├── DEVELOP.md           # 【二级文件】本地开发部署指南
+│   ├── API.md               # 【二级文件】后端接口规范（区分离线V1.0/在线V2.0预留接口）
+│   ├── COMPATIBILITY.md     # 【二级文件】全平台适配+dist打包规范
+│   ├── CONTRIBUTION.md      # 【二级文件】开发者协作规范
+│   ├── TEMPLATE.md          # 【二级文件】配置模板说明
+│   ├── YESAPI_ACCOUNT.md    # 【二级文件】云端对接预留文档（V2.0开发，V1.0不实现）
+│   ├── WORLD_TREE.md        # 【二级文件】小说五级创作剧情架构专项文档
+│   ├── PRESS_TEST.md        # 【二级文件】Lv9亿级压测操作规范
+│   └── local_member_config_v1.0.0.json # 【二级文件】V1.0离线会员基准配置，存储10组6位特权账号，后端统一读取
+├── src/ # 【一级文件夹】Python Core后端内核（FastAPI内置）
+│   ├── __init__.py          # 【二级文件】源码包导出入口
+│   ├── account/ # 【二级文件夹】离线账号模块（无云端交互，读取docs会员配置）
+│   │   ├── __init__.py      # 【三级文件】模块初始化
+│   │   ├── local_login.py   # 【三级文件】V1.0纯本地登录校验，匹配docs内6位UID账号，无主板SN云端校验
+│   │   ├── member_ctrl.py   # 【三级文件】离线Lv0~Lv9权限本地判定，权限基准来自会员JSON
+│   │   └── point_system.py  # 【三级文件】本地积分扣费逻辑，所有账号统一积分999999999
+│   ├── config/ # 【二级文件夹】全局配置加载模块
+│   │   ├── __init__.py      # 【三级文件】模块初始化
+│   │   └── config_loader.py # 【三级文件】yaml/json加载，自动读取docs/local_member_config_v1.0.0.json、非法参数回滚
+│   ├── core/ # 【二级文件夹】AI生成核心引擎
+│   │   ├── __init__.py      # 【三级文件】模块初始化
+│   │   ├── llm_api.py       # 【三级文件】三模型本地SSE统一封装
+│   │   ├── memory_filter.py # 【三级文件】三层冷热记忆、Token截断
+│   │   ├── role_extract.py  # 【三级文件】自动角色提取归档
+│   │   ├── novel_auto_gen.py# 【三级文件】五级大纲、单章5节拦截逻辑
+│   │   ├── world_check.py   # 【三级文件】100节区间剧情校验
+│   │   └── progress_monitor.py # 【三级文件】30秒快照、断点持久化
+│   ├── database/ # 【二级文件夹】SQLite本地持久层
+│   │   ├── __init__.py      # 【三级文件】模块初始化
+│   │   ├── db_sqlite.py     # 【三级文件】加密本地连接池、元数据CRUD
+│   │   └── monitor_db.py    # 【三级文件】硬件日志本地持久化
+│   └── utils/ # 【二级文件夹】通用工具集
+│       ├── __init__.py      # 【三级文件】工具包初始化
+│       ├── monitor/ # 【三级文件夹】硬件采集工具
+│       │   ├── hardware_collect.py # 【三级文件】CPU/GPU/内存采集
+│       │   ├── monitor_scheduler.py # 【三级文件】监控刷新调度
+│       │   └── log_writer.py # 【三级文件】7天自动清理日志
+│       ├── process/ # 【三级文件夹】快照、TXT导入导出工具
+│       └── i18n/ # 【三级文件夹】多语言本地加载工具
+├── web/ # 【一级文件夹】纯原生HTML/CSS/JS前端（PyWebView桌面窗口唯一加载源，废弃PyQt6/Electron）
+│   ├── index.html           # 【二级文件】前端总入口页面
+│   ├── assets/ # 【二级文件夹】前端静态资源
+│   │   ├── css/ # 【三级文件夹】全局样式
+│   │   │   └── main.css     # 【三级文件】全局样式表
+│   │   ├── js/ # 【三级文件夹】原生JS工具（移除TS）
+│   │   │   └── api_client.js # 【三级文件】前端原生HTTP/SSE请求工具
+│   │   └── i18n/ # 【三级文件夹】多语言JSON包
+│   │       ├── zh-CN.json
+│   │       ├── en-US.json
+│   │       ├── fr-FR.json
+│   │       └── es-ES.json
+│   ├── pages/ # 【二级文件夹】功能页面HTML
+│   │   ├── login.html       # 【三级文件】本地离线登录页，读取docs会员配置渲染账号规则
+│   │   ├── workbench.html   # 【三级文件】五级世界树工作台
+│   │   ├── member.html      # 【三级文件】Lv9双开关本地面板
+│   │   ├── model_setting.html # 【三级文件】模型配置页面
+│   │   ├── monitor.html     # 【三级文件】五维监控面板
+│   │   └── snapshot_export.html # 【三级文件】快照导入导出页面
+│   └── public/ # 【二级文件夹】前端公共工具
+│       └── file_handler.js  # 【三级文件】文件上传下载原生脚本
+├── tests/ # 【一级文件夹】单元/压测用例
+│   ├── __init__.py          # 【二级文件】测试包初始化
+│   ├── account/ # 【二级文件夹】离线账号单元测试，基准为docs会员JSON
+│   └── core/ # 【二级文件夹】生成/记忆测试
+│       └── pressure/ # 【三级文件夹】亿级压测专项用例
+├── runtime/ # 【一级文件夹】运行时临时本地数据
+│   ├── logs/ # 【二级文件夹】分级本地日志
+│   │   ├── monitor_log/
+│   │   │   └── monitor.log
+│   │   ├── runtime_log/
+│   │   │   └── runtime.log
+│   │   └── token_flow_log/
+│   │       └── token_flow.log
+│   ├── cache/ # 【二级文件夹】冷热本地缓存
+│   └── temp/ # 【二级文件夹】小节临时写入缓冲
+├── data/ # 【一级文件夹】纯本地用户小说工程（无网络上传）
+│   ├── Book/ # 【二级文件夹】多小说隔离目录
+│   │   ├── User/ # 【三级文件夹】本地用户配置
+│   │   │   └── user_setting.json # 【三级文件】本地个性化配置
+│   │   └──【自定义书名】/ # 【三级文件夹】单本独立本地工程
+│   │       ├── db/ # 本地元数据库
+│   │       ├── chapters/ # 外置TXT正文（亿级分离）
+│   │       ├── vector/ # 本地向量库
+│   │       └── snapshot/ # 本地zip快照包
+│   └── database/ # 【二级文件夹】全局本地SQLite库
+├── assets/ # 【一级文件夹】全局静态资源（前端web共用）
+│   ├── lib/ # 【二级文件夹】全局多语言JSON
+│   │   ├── zh-CN.json
+│   │   ├── en-US.json
+│   │   ├── fr-FR.json
+│   │   └── es-ES.json
+│   ├── fonts/ # 【二级文件夹】全局字体
+│   └── images/ # 【二级文件夹】界面图标、Logo
+└── dist/ # 【一级文件夹】CI自动打包全平台离线安装包
 # FeatherPen 国标项目架构规范（GB/T 8567-2006）
 ## 一、架构总则
 1. 项目一、二级目录永久锁定，禁止修改、新增、删除
