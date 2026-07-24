@@ -45,12 +45,9 @@ def save_member_privilege(cfg: dict):
 所有配置项均带有类型提示和默认值回滚机制。
 """
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
-
-import yaml
 
 # 项目根目录
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -96,12 +93,9 @@ class MemberConfig:
 所有配置项均带有类型提示和默认值回滚机制。
 """
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
-
-import yaml
 
 # 项目根目录
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -224,3 +218,44 @@ def load_global_config() -> AppConfig:
 def load_member_config() -> MemberConfig:
     """快捷函数：加载会员配置"""
     return config.member
+"""
+GB/T 8567-2006 国标业务注释
+文件路径：FeatherPen/src/config/config_loader.py
+功能：加载全局离线配置文件
+约束：仅读取本地配置，无远程拉取逻辑
+"""
+import os
+
+
+def load_config() -> dict:
+    """
+    加载 FeatherPen 全局离线配置
+    若配置文件不存在，则返回默认离线配置
+    """
+    config_path = os.path.join("data", "Book", "User", "user_setting.json")
+
+    default_config = {
+        "signin": {
+            "lv9_skip_point_default": False,
+            "lv9_pressure_default": False
+        },
+        "database": {
+            "db_path": "featherpen.db"
+        },
+        "crypto": {
+            "aes_key": "FeatherPen2025OfflineKey"
+        },
+        "model": {
+            "local_api": "http://127.0.0.1:1234/v1",
+            "model_name": "qwen2.5-14b-instruct-1m"
+        }
+    }
+
+    if not os.path.exists(config_path):
+        return default_config
+
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return default_config

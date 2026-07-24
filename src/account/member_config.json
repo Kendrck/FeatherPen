@@ -1,0 +1,14 @@
+{
+  "members": [
+    {"level": 1, "uid": "111111", "pwd": "passwd", "point": 999999999, "desc": "Lv1 初闻 本地离线测试账号"},
+    {"level": 2, "uid": "222222", "pwd": "passwd", "point": 999999999, "desc": "Lv2 薄名 本地离线测试账号"},
+    {"level": 3, "uid": "333333", "pwd": "passwd", "point": 999999999, "desc": "Lv3 浅露 本地离线测试账号"},
+    {"level": 4, "uid": "444444", "pwd": "passwd", "point": 999999999, "desc": "Lv4 知名 本地离线测试账号"},
+    {"level": 5, "uid": "555555", "pwd": "passwd", "point": 999999999, "desc": "Lv5 显赫 本地离线测试账号"},
+    {"level": 6, "uid": "666666", "pwd": "passwd", "point": 999999999, "desc": "Lv6 盛传 本地离线测试账号"},
+    {"level": 7, "uid": "777777", "pwd": "passwd", "point": 999999999, "desc": "Lv7 昭著 本地离线测试账号"},
+    {"level": 8, "uid": "888888", "pwd": "passwd", "point": 999999999, "desc": "Lv8 传奇 本地离线测试账号"},
+    {"level": 9, "uid": "999999", "pwd": "passwd", "point": 999999999, "desc": "Lv9 不朽 本地离线特权账号1"},
+    {"level": 9, "uid": "000000", "pwd": "passwd", "point": 999999999, "desc": "Lv9 不朽 本地离线特权账号2"}
+  ]
+}

@@ -3,10 +3,11 @@ FeatherPen V1.0.0 硬件资源监控采集模块
 功能：采集CPU、内存、GPU等硬件指标数据，用于监控仪表盘展示
 规范：统一使用psutil和pynvml，无N卡环境自动降级
 """
+import logging
+from typing import Dict
+
 import psutil
 import pynvml
-from typing import Dict, Optional
-import logging
 
 # 初始化日志记录器
 logger = logging.getLogger(__name__)
@@ -63,3 +64,46 @@ def get_gpu_availability() -> bool:
     :return: 有可用NVIDIA GPU返回True，否则返回False
     """
     return NVML_AVAILABLE and pynvml.nvmlDeviceGetCount() > 0
+
+"""
+GB/T 8567-2006 国标业务注释
+文件路径：FeatherPen/src/utils/monitor/hardware_collect.py
+功能：读取本地主板硬件序列号，用于本机快速登录
+约束：纯本地读取，不上传云端
+"""
+import sys
+
+
+def get_mainboard_sn() -> str:
+    """
+    获取本机主板序列号
+    Windows：读取 WMI Win32_BaseBoard
+    Linux：读取 /sys/class/dmi/id/board_serial
+    macOS：读取 system_profiler SPHardwareSerialNumber
+    读取失败兜底返回 "000000"
+    """
+    try:
+        if sys.platform.startswith("win"):
+            import wmi
+            c = wmi.WMI()
+            for board in c.Win32_BaseBoard():
+                if board.SerialNumber:
+                    return board.SerialNumber.strip().replace("-", "").replace(".", "")
+        elif sys.platform.startswith("linux"):
+            path = "/sys/class/dmi/id/board_serial"
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read().strip().replace("-", "").replace(".", "")
+        elif sys.platform == "darwin":
+            import subprocess
+            result = subprocess.run(
+                ["system_profiler", "SPHardwareDataType"],
+                capture_output=True,
+                text=True
+            )
+            for line in result.stdout.splitlines():
+                if "Serial Number" in line:
+                    return line.split(":")[-1].strip().replace("-", "").replace(".", "")
+    except Exception:
+        pass
+
+    return "000000"

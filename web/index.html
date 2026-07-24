@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FeatherPen 羽笔 V1.0.0</title>
     <style>
-        /* --- 全局样式 (Main.css 内联) --- */
+        /* GB/T 8567 标准全局样式，无冗余调试样式 */
         :root {
             --bg-color: #1e1e2e;
             --panel-color: #252537;
@@ -28,13 +28,7 @@
             overflow: hidden;
             user-select: none;
         }
-        /* --- 布局 --- */
-        #app {
-            display: flex;
-            width: 100%;
-            height: 100%;
-        }
-        /* 侧边栏 */
+        #app { display: flex; width: 100%; height: 100%; }
         .sidebar {
             width: 220px;
             background-color: var(--panel-color);
@@ -50,12 +44,7 @@
             color: var(--accent-color);
             border-bottom: 1px solid #313244;
         }
-        .nav-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            flex: 1;
-        }
+        .nav-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
         .nav-item {
             padding: 15px 20px;
             cursor: pointer;
@@ -67,25 +56,13 @@
             color: var(--text-primary);
             border-left: 3px solid var(--accent-color);
         }
-        /* 主内容区 */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            position: relative;
-        }
-        .page {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        .page.active {
-            display: block;
-        }
+        .main-content { flex: 1; padding: 20px; overflow-y: auto; }
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* --- 组件样式 --- */
         .card {
             background-color: var(--panel-color);
             border-radius: var(--border-radius);
@@ -94,7 +71,6 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         h2 { margin-top: 0; color: var(--accent-color); font-size: 1.4rem; }
-        
         input, button {
             padding: 10px 15px;
             border-radius: 6px;
@@ -104,16 +80,11 @@
             font-size: 0.9rem;
             margin: 5px 0;
         }
-        input:focus { outline: 2px solid var(--accent-color); border-color: transparent; }
-        button {
-            cursor: pointer;
-            font-weight: bold;
-            transition: opacity 0.2s;
-        }
+        input:focus { outline: 2px solid var(--accent-color); border: none; }
+        button { cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
         button:hover { opacity: 0.9; }
         button.primary { background-color: var(--accent-color); color: #111; border: none; }
         button.danger { background-color: var(--danger-color); color: #111; border: none; }
-        /* 监控仪表盘 */
         .monitor-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -127,7 +98,6 @@
         }
         .monitor-value { font-size: 1.5rem; font-weight: bold; color: var(--success-color); }
         .monitor-label { font-size: 0.8rem; color: var(--text-secondary); }
-        /* 登录页居中 */
         #login-page {
             display: flex;
             justify-content: center;
@@ -139,244 +109,203 @@
 </head>
 <body>
 <div id="app">
-    <!-- 侧边栏导航 -->
     <div class="sidebar" id="sidebar" style="display: none;">
         <div class="logo-area">FeatherPen 羽笔</div>
         <ul class="nav-menu">
-            <li class="nav-item active" onclick="navTo('workbench')">📝 创作工作台</li>
+            <li class="nav-item" onclick="navTo('workbench')">📝 创作工作台</li>
             <li class="nav-item" onclick="navTo('member')">👑 会员中心 (Lv9)</li>
             <li class="nav-item" onclick="navTo('monitor')">📊 系统监控</li>
             <li class="nav-item" onclick="navTo('settings')">⚙️ 模型设置</li>
             <li class="nav-item" onclick="logout()" style="margin-top: auto; color: var(--danger-color);">🚪 退出登录</li>
         </ul>
     </div>
-    <!-- 主内容区域 -->
     <div class="main-content">
-        
-        <!-- 1. 登录页 -->
+        <!-- 登录页面 -->
         <div id="login-page" class="page active">
             <div class="login-box card">
                 <h2>本地离线登录</h2>
                 <p style="color: var(--text-secondary); font-size: 0.8rem;">
-                    V1.0.0 纯离线模式<br/>
-                    【空值直接登录 = 本机主板序号自动登录】<br/>
-                    特权账号：999999 / 000000
+                    V1.0.0 纯离线模式<br>
+                    空输入直接登录 = 主板SN自动登录(000000)<br>
+                    特权账号：999999 / 000000 | 密码 passwd
                 </p>
-                <input type="text" id="uid" placeholder="留空自动主板登录 | 输入6位特权UID">
-                <input type="password" id="pwd" placeholder="留空/默认 passwd">
-                <button class="primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">进入系统</button>
-                <div id="login-msg" style="margin-top: 10px; color: var(--danger-color); font-size: 0.8rem;"></div>
+                <input type="text" id="uid" placeholder="留空自动登录 / 输入6位UID">
+                <input type="password" id="pwd" placeholder="留空默认passwd">
+                <button class="primary" style="width:100%" onclick="handleLogin()">进入系统</button>
+                <div id="login-msg" style="color:var(--danger-color);font-size:0.8rem;margin-top:10px;"></div>
             </div>
         </div>
-
-        <!-- 2. 工作台 (Workbench) -->
+        <!-- 工作台 -->
         <div id="workbench" class="page">
             <div class="card">
                 <h2>📝 五级世界树工作台</h2>
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <input type="text" placeholder="章节名称..." style="flex: 1;">
+                <div style="display:flex;gap:10px;margin-bottom:15px;">
+                    <input style="flex:1" placeholder="章节名称">
                     <button class="primary">生成大纲</button>
                     <button class="primary">生成正文</button>
                 </div>
-                <textarea style="width: 100%; height: 400px; background: #181825; border: 1px solid #45475a; color: #cdd6f4; padding: 10px; border-radius: 6px; resize: none;" placeholder="在此输入或生成内容..."></textarea>
-                <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary);">
-                    当前状态：本地离线生成 | 积分扣除：2点/次
-                </div>
+                <textarea style="width:100%;height:400px;background:#181825;border:1px solid #45475a;color:#cdd6f4;padding:10px;border-radius:6px;resize:none;" placeholder="小说内容生成区"></textarea>
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:10px;">本地离线生成 | 单次扣除2积分</div>
             </div>
         </div>
-
-        <!-- 3. 会员中心 (Member) -->
+        <!-- Lv9特权面板 -->
         <div id="member" class="page">
             <div class="card">
                 <h2>👑 Lv9 特权控制中心</h2>
-                <p>当前账户积分：<span style="color: var(--success-color); font-weight: bold;">999,999,999</span></p>
-                <hr style="border-color: #45475a;">
-                
-                <div style="margin: 15px 0; display: flex; justify-content: space-between; align-items: center;">
+                <p>账户积分：<span style="color:var(--success-color);font-weight:bold;">999,999,999</span></p>
+                <hr style="border-color:#45475a;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin:15px 0;">
                     <div>
-                        <div style="font-weight: bold;">积分扣除豁免</div>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary);">开启后生成内容不消耗积分</div>
+                        <div style="font-weight:bold;">积分扣除豁免</div>
+                        <div style="font-size:0.8rem;color:var(--text-secondary)">开启生成不扣积分</div>
                     </div>
                     <button class="primary" onclick="toggleSkipPoint(true)">开启豁免</button>
                 </div>
-                <div style="margin: 15px 0; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin:15px 0;">
                     <div>
-                        <div style="font-weight: bold; color: var(--danger-color);">亿级压测模式</div>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary);">解除单章5小节限制 (高风险)</div>
+                        <div style="font-weight:bold;color:var(--danger-color)">亿级压测模式</div>
+                        <div style="font-size:0.8rem;color:var(--text-secondary)">解除单章5小节限制</div>
                     </div>
                     <button class="danger" onclick="togglePressure(true)">解锁压测</button>
                 </div>
             </div>
         </div>
-
-        <!-- 4. 系统监控 (Monitor) -->
+        <!-- 五维监控面板 TOK→GEN→CPU→GPU→MEM -->
         <div id="monitor" class="page">
             <div class="card">
                 <h2>📊 五维硬件监控（TOK→GEN→CPU→GPU→MEM）</h2>
                 <div class="monitor-grid">
-                    <div class="monitor-item">
-                        <div class="monitor-value" id="val-tok">0</div>
-                        <div class="monitor-label">TOK 流量</div>
-                    </div>
-                    <div class="monitor-item">
-                        <div class="monitor-value" id="val-gen">0%</div>
-                        <div class="monitor-label">GEN 进度</div>
-                    </div>
-                    <div class="monitor-item">
-                        <div class="monitor-value" id="val-cpu">0%</div>
-                        <div class="monitor-label">CPU 占用</div>
-                    </div>
-                    <div class="monitor-item">
-                        <div class="monitor-value" id="val-gpu">0%</div>
-                        <div class="monitor-label">GPU 占用</div>
-                    </div>
-                    <div class="monitor-item">
-                        <div class="monitor-value" id="val-mem">0%</div>
-                        <div class="monitor-label">内存占用</div>
-                    </div>
+                    <div class="monitor-item"><div class="monitor-value" id="val-tok">0</div><div class="monitor-label">TOK流量</div></div>
+                    <div class="monitor-item"><div class="monitor-value" id="val-gen">0%</div><div class="monitor-label">GEN生成进度</div></div>
+                    <div class="monitor-item"><div class="monitor-value" id="val-cpu">0%</div><div class="monitor-label">CPU占用</div></div>
+                    <div class="monitor-item"><div class="monitor-value" id="val-gpu">0%</div><div class="monitor-label">GPU占用</div></div>
+                    <div class="monitor-item"><div class="monitor-value" id="val-mem">0%</div><div class="monitor-label">内存占用</div></div>
                 </div>
             </div>
         </div>
-
-        <!-- 5. 设置页 (Settings) -->
+        <!-- 模型配置页 -->
         <div id="settings" class="page">
             <div class="card">
-                <h2>⚙️ 模型配置</h2>
-                <div style="margin-bottom: 10px;">
-                    <label style="display:block; margin-bottom:5px; color: var(--text-secondary);">本地推理地址</label>
-                    <input type="text" value="http://127.0.0.1:1234/v1" style="width: 100%;" disabled>
+                <h2>⚙️ 本地模型配置</h2>
+                <div style="margin-bottom:10px;">
+                    <label style="display:block;color:var(--text-secondary);margin-bottom:5px;">本地推理地址</label>
+                    <input value="http://127.0.0.1:1234/v1" disabled style="width:100%;">
                 </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="display:block; margin-bottom:5px; color: var(--text-secondary);">模型名称</label>
-                    <input type="text" value="qwen2.5-14b-instruct-1m" style="width: 100%;">
+                <div style="margin-bottom:10px;">
+                    <label style="display:block;color:var(--text-secondary);margin-bottom:5px;">模型名称</label>
+                    <input value="qwen2.5-14b-instruct-1m" style="width:100%;">
                 </div>
-                <button class="primary">保存配置</button>
+                <button class="primary">保存本地配置</button>
             </div>
         </div>
     </div>
 </div>
-
 <script>
-/*
-GB/T 8567 国标前端注释
+/* GB/T 8567 国标前端注释 | 文件路径：FeatherPen/web/index.html
 登录双模式逻辑：
-1. 空输入点击登录 → 读取主板硬件序号 → 本地默认登录
-2. 输入特权UID(999999/000000)+passwd → 特权账号登录
-适配V1.0.0纯离线架构，无云端校验
-修复内容：清除所有转义残留、非法引号、URL拼写错误
+1. UID/密码空值直接登录 → 自动获取主板SN兜底000000账号
+2. 手动输入6位特权账号999999/000000登录
+纯本地接口127.0.0.1:8080，无外网请求，无TS/冗余调试代码
 */
-// 修复：纯净URL，移除所有非法转义、多余引号
 const API_BASE = "http://127.0.0.1:8080";
 let currentUser = null;
 
-// 获取主板硬件序列号（本地硬件标识）
-async function getMainboardSN() {
-    // PyWebView 本地硬件调用 / 兜底模拟SN
+/** 获取主板硬件SN，兜底返回000000 Lv9账号 */
+async function getHardwareSN() {
     try {
-        // 优先调用后端硬件接口
-        const res = await fetch(API_BASE + "/api/v1/hardware/sn");
-        const data = await res.json();
-        if(data.sn) return data.sn.substring(0,6);
-    } catch (e) {}
-    // 兜底：固定本地默认SN（保证必可登录）
+        const res = await fetch(`${API_BASE}/api/v1/hardware/sn`);
+        const json = await res.json();
+        if (json.sn && json.sn.length >=6) return json.sn.slice(0,6);
+    } catch(err) {}
     return "000000";
 }
 
-// 登录核心逻辑
+/** 登录核心处理函数 */
 async function handleLogin() {
-    const account = document.getElementById('uid').value.trim();
-    const pwd = document.getElementById('pwd').value.trim();
-    const msgBox = document.getElementById('login-msg');
-    msgBox.innerText = "";
-
-    let loginUID = "";
-    let loginPWD = "";
-
-    // ========== 双模式登录判定 ==========
-    // 模式1：输入为空 → 主板SN自动本地登录
-    if(account === "" && pwd === ""){
-        loginUID = await getMainboardSN();
-        loginPWD = "passwd";
+    const uidInput = document.getElementById("uid").value.trim();
+    const pwdInput = document.getElementById("pwd").value.trim();
+    const msgDom = document.getElementById("login-msg");
+    msgDom.innerText = "";
+    let loginUid, loginPwd;
+    // 模式1：空输入自动主板登录
+    if (!uidInput && !pwdInput) {
+        loginUid = await getHardwareSN();
+        loginPwd = "passwd";
+    } else {
+        loginUid = uidInput;
+        loginPwd = pwdInput || "passwd";
     }
-    // 模式2：手动输入特权账号登录
-    else {
-        loginUID = account;
-        loginPWD = pwd || "passwd";
-    }
-
-    // 前端6位UID强校验
-    if(!/^\d{6}$/.test(loginUID)){
-        msgBox.innerText = "UID必须为6位数字";
+    // 6位数字格式校验
+    if (!/^\d{6}$/.test(loginUid)) {
+        msgDom.innerText = "错误：UID必须为6位纯数字";
         return;
     }
-
     try {
-        const res = await fetch(API_BASE + "/api/v1/local/login", {
+        const resp = await fetch(`${API_BASE}/api/v1/local/login`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ uid: loginUID, password: loginPWD })
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({uid: loginUid, password: loginPwd})
         });
-        const data = await res.json();
-
-        if (res.ok) {
+        const data = await resp.json();
+        if (resp.ok) {
             currentUser = data;
-            document.getElementById('login-page').classList.remove('active');
-            document.getElementById('sidebar').style.display = 'flex';
-            navTo('workbench');
-            startMonitorLoop();
+            document.getElementById("login-page").classList.remove("active");
+            document.getElementById("sidebar").style.display = "flex";
+            navTo("workbench");
+            startMonitor();
         } else {
-            msgBox.innerText = data.detail || "登录失败，请检查账号";
+            msgDom.innerText = data.detail || "账号或密码错误";
         }
-    } catch (e) {
-        msgBox.innerText = "后端服务未启动，请先运行 main.py";
+    } catch(e) {
+        msgDom.innerText = "连接失败：请先运行main.py启动后端服务";
     }
 }
 
-// 页面导航
+/** 页面切换导航 */
 function navTo(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
-    const navItems = document.querySelectorAll('.nav-item');
-    if(pageId === 'workbench') navItems[0].classList.add('active');
-    if(pageId === 'member') navItems[1].classList.add('active');
-    if(pageId === 'monitor') navItems[2].classList.add('active');
-    if(pageId === 'settings') navItems[3].classList.add('active');
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+    document.getElementById(pageId).classList.add("active");
+    const navList = document.querySelectorAll(".nav-item");
+    const map = {workbench:0, member:1, monitor:2, settings:3};
+    if (map[pageId] !== undefined) navList[map[pageId]].classList.add("active");
 }
 
-// Lv9 特权操作
+/** Lv9 积分豁免开关 */
 async function toggleSkipPoint(enable) {
-    if(!confirm(`确定要${enable ? '开启' : '关闭'}积分豁免吗？`)) return;
-    await fetch(API_BASE + "/api/v1/local/toggle_skip_point", {
+    if (!confirm(`确认${enable?"开启":"关闭"}积分豁免？`)) return;
+    await fetch(`${API_BASE}/api/v1/local/toggle_skip_point`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ enable_skip: enable })
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({enable_skip: enable})
     });
-    alert("特权设置已更新");
-}
-async function togglePressure(enable) {
-    if(!confirm(`确定要${enable ? '解锁' : '关闭'}压测模式吗？`)) return;
-    await fetch(API_BASE + "/api/v1/local/toggle_pressure", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ enable_pressure: enable })
-    });
-    alert("压测模式已切换");
+    alert("本地配置已更新");
 }
 
-// 退出登录
+/** Lv9 压测模式开关 */
+async function togglePressure(enable) {
+    if (!confirm(`确认${enable?"解锁":"关闭"}压测模式？`)) return;
+    await fetch(`${API_BASE}/api/v1/local/toggle_pressure`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({enable_pressure: enable})
+    });
+    alert("压测配置已更新");
+}
+
+/** 退出登录刷新页面 */
 function logout() {
     location.reload();
 }
 
-// 监控循环（严格对齐 TOK→GEN→CPU→GPU→MEM 顺序）
-function startMonitorLoop() {
-    setInterval(() => {
-        document.getElementById('val-tok').innerText = Math.floor(Math.random() * 500);
-        document.getElementById('val-gen').innerText = (Math.random() * 100).toFixed(1) + "%";
-        document.getElementById('val-cpu').innerText = Math.floor(Math.random() * 30 + 10) + "%";
-        document.getElementById('val-gpu').innerText = Math.floor(Math.random() * 10) + "%";
-        document.getElementById('val-mem').innerText = Math.floor(Math.random() * 20 + 40) + "%";
+/** 五维监控定时刷新（TOK→GEN→CPU→GPU→MEM顺序） */
+function startMonitor() {
+    setInterval(()=>{
+        document.getElementById("val-tok").innerText = Math.floor(Math.random()*500);
+        document.getElementById("val-gen").innerText = (Math.random()*100).toFixed(1)+"%";
+        document.getElementById("val-cpu").innerText = Math.floor(Math.random()*30+10)+"%";
+        document.getElementById("val-gpu").innerText = Math.floor(Math.random()*10)+"%";
+        document.getElementById("val-mem").innerText = Math.floor(Math.random()*20+40)+"%";
     }, 2000);
 }
 </script>
