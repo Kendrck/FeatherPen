@@ -1,38 +1,19 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-数据库模块统一导出入口
-
-提供 DatabaseManager、AccountRepository、PointsRepository 及初始化函数的快捷导入。
+GB/T 8567-2006 国标业务注释
+数据库模块初始化文件
+功能：统一数据库模块导出、标准化模块调用入口、初始化数据库全局配置
+约束：纯离线运行、无网络逻辑、零冗余代码
 """
+__version__ = "1.0.0"
+__author__ = "FeatherPen Dev"
 
-from src.database.account_repo import AccountRepository
-from src.database.db_sqlite import DatabaseManager, db, init_database
-from src.database.points_repo import PointsRepository
-
-__all__ = [
-    "DatabaseManager",
-    "db",
-    "init_database",
-    "AccountRepository",
-    "PointsRepository",
-]
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-数据库模块统一导出入口
-
-提供 DatabaseManager、AccountRepository、PointsRepository 及初始化函数的快捷导入。
-"""
-
-from src.database.account_repo import AccountRepository
-from src.database.db_sqlite import DatabaseManager, db, init_database
-from src.database.points_repo import PointsRepository
-
-__all__ = [
-    "DatabaseManager",
-    "db",
-    "init_database",
-    "AccountRepository",
-    "PointsRepository",
-]
+# 导出核心数据库工具类与函数，统一项目调用规范
+from .db_sqlite import (
+    db_create_project,
+    db_create_section,
+    db_get_user_point,
+    db_local_get_section_count,
+    db_update_user_point,
+    init_db,
+)
+from .monitor_db import clean_expired_monitor_log, insert_monitor_record
