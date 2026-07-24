@@ -1,57 +1,54 @@
+# -*- coding: utf-8 -*-
 """
-GB/T 8567-2006 国标业务注释
-文件路径：FeatherPen/src/__init__.py
-功能：Core 内核包导出入口，注册 FastAPI 离线接口
-约束：V1.0 纯离线，无云端同步代码，仅本地 127.0.0.1 提供服务
+GB/T 8567 FastAPI后端服务入口
+功能：注册全部离线业务接口，仅本地127.0.0.1访问，无外网接口
+约束：废弃PyQt6相关代码，仅对接web前端页面
 """
 from fastapi import FastAPI
 
 from src.account.local_login import verify_local_account
 from src.utils.monitor.hardware_collect import get_mainboard_sn
 
-app = FastAPI(title="FeatherPen V1.0.0 Offline API", version="1.0.0")
-
+app = FastAPI(title="FeatherPen V1.0.0 离线API", version="1.0.0")
 
 @app.get("/")
-def root():
-    return {"message": "FeatherPen V1.0.0 离线服务已启动", "status": "running"}
-
+def root_index():
+    """服务根路由，返回运行状态"""
+    return {"msg": "FeatherPen离线后端服务正常运行", "status": "running"}
 
 @app.post("/api/v1/local/login")
-def login_endpoint(payload: dict):
-    """
-    本地离线登录接口
-    :param payload: {uid: str, password: str}
-    :return: 账号权限信息
-    """
-    uid = payload.get("uid", "")
-    password = payload.get("password", "")
-    return verify_local_account(uid, password)
-
+def api_local_login(payload: dict):
+    """本地账号登录接口，前后端双层账号密码校验"""
+    uid = payload.get("uid", "").strip()
+    pwd = payload.get("password", "").strip()
+    return verify_local_account(uid, pwd)
 
 @app.get("/api/v1/hardware/sn")
-def hardware_sn_endpoint():
-    """
-    读取本地主板硬件序列号接口
-    注意：V1.0 仅本地返回，不上传云端
-    """
-    sn = get_mainboard_sn()
-    return {"sn": sn}
-
+def api_get_mb_sn():
+    """读取本机主板序列号（自动登录专用）"""
+    return {"sn": get_mainboard_sn()}
 
 @app.post("/api/v1/local/toggle_skip_point")
-def toggle_skip_point(payload: dict):
-    """
-    Lv9 积分豁免开关接口
-    """
-    enable_skip = payload.get("enable_skip", False)
-    return {"code": 200, "enable_skip": enable_skip, "message": "积分豁免配置已更新"}
-
+def api_toggle_skip(payload: dict):
+    """Lv9积分豁免开关持久化接口"""
+    from src.account.member_ctrl import toggle_lv9_deduct_switch
+    enable = payload.get("enable_skip", False)
+    toggle_lv9_deduct_switch(enable)
+    return {"code":200, "enable_skip": enable, "msg":"积分豁免配置已保存"}
 
 @app.post("/api/v1/local/toggle_pressure")
-def toggle_pressure(payload: dict):
-    """
-    Lv9 压测模式开关接口
-    """
-    enable_pressure = payload.get("enable_pressure", False)
-    return {"code": 200, "enable_pressure": enable_pressure, "message": "压测模式配置已更新"}
+def api_toggle_pressure(payload: dict):
+    """压力模式开关预留接口"""
+    return {"code":200, "enable_pressure": payload.get("enable_pressure", False), "msg":"压力配置已更新"}
+
+@app.get("/api/v1/user/check_name")
+def api_check_username(payload: dict):
+    """账号查重接口，注册/登录前置唯一性校验"""
+    from src.database.db_sqlite import get_db_conn
+    username = payload.get("username", "").strip()
+    conn = get_db_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT 1 FROM local_user WHERE uid = ?", (username,))
+    exist = cur.fetchone() is not None
+    conn.close()
+    return {"code":200, "is_exist": exist, "msg": "账号已占用" if exist else "账号可用"}

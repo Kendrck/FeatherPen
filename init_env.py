@@ -1,221 +1,110 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-FeatherPen V1.0.0 跨平台环境初始化脚本
-功能：Python版本校验、项目必备目录自动创建、批量安装锁定依赖
-适配：Windows / Linux / macOS / Android 全平台统一环境初始化
+GB/T 8567-2006 项目环境标准化初始化脚本
+功能：Python版本校验、标准目录创建、虚拟环境生成、依赖批量安装
+约束：跨平台兼容 Windows/Linux/macOS，自动生成国标运行目录
 """
-
-import os
+import json
 import subprocess
 import sys
+import venv
 from pathlib import Path
 
-
-def check_python_version():
-    """
-    校验系统Python版本
-    强制要求：Python3.14，版本不符直接终止初始化
-    """
-    version = sys.version_info
-    if version.major != 3 or version.minor != 14:
-        raise Exception(
-            f"环境错误：当前Python版本{version.major}.{version.minor}，项目仅支持Python3.14"
-        )
-
-
-def init_project_dir():
-    """
-    自动创建项目核心目录
-    规避目录缺失导致的日志、数据、配置读写报错
-    """
-    dir_list = [
-        "logs/monitor_log",
-        "logs/runtime_log",
-        "logs/token_flow_log",
-        "Book/User",
-        "docs",
-    ]
-    for dir_path in dir_list:
-        Path(dir_path).mkdir(parents=True, exist_ok=True)
-
-
-def install_dependencies():
-    """
-    批量安装项目锁定依赖
-    基于requirements.txt统一安装，保障环境一致性
-    """
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"]
-    )
-
-
-if __name__ == "__main__":
-    check_python_version()
-    init_project_dir()
-    install_dependencies()
-    print("FeatherPen V1.0.0 跨平台环境初始化完成，环境适配正常")
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-环境初始化脚本
-
-一键完成以下操作：
-1. 创建 Python 虚拟环境
-2. 安装 requirements.txt 依赖
-3. 创建必要的运行时目录
-4. 生成默认配置文件（如不存在）
-"""
-
-import venv
-
-# 项目根目录
+# 项目根路径全局常量
 PROJECT_ROOT = Path(__file__).parent
-
-# 必要目录列表
+# 国标强制运行目录清单（三级拓展，一二目录不可修改）
 REQUIRED_DIRS = [
     "data",
     "data/Book",
     "data/database",
     "runtime",
-    "runtime/logs",
     "runtime/cache",
+    "runtime/logs",
     "runtime/temp",
     "assets/lib",
     "assets/fonts",
     "assets/images",
     "docs",
 ]
-
-# 默认语言包内容
+# 全局默认简体中文语言包
 DEFAULT_ZH_CN = {
     "login": {
-        "cloud_title": "云端账号登录",
-        "uid_input": "8位账号UID",
-        "pwd_input": "登录密码",
-        "white_btn_tip": "快捷填充测试账号",
+        "uid_input": "6-20位字母数字/_-. 或邮箱，留空自动主板特权登录",
+        "pwd_input": "密码至少6位，推荐字母数字混合",
+        "white_btn_tip": "一键填充离线测试账号",
     },
     "member": {
-        "lv9_switch_title": "Lv9不朽测试账号积分控制开关",
-        "switch_on_tip": "当前已开启积分豁免，生成、校正操作不消耗积分",
-        "switch_off_tip": "当前已关闭积分豁免，所有操作正常扣除积分",
-        "white_label": "白名单测试账号",
-        "lv9_label": "不朽特权账号",
+        "lv9_switch_title": "Lv9不朽账号积分豁免开关",
+        "switch_on_tip": "已开启豁免，生成/校对不消耗积分",
+        "switch_off_tip": "已关闭豁免，所有操作正常扣积分",
+        "white_label": "离线测试账号",
+        "lv9_label": "Lv9特权账号",
     },
 }
 
+def check_python_version():
+    """校验运行Python版本，强制3.14，版本不符终止初始化"""
+    ver = sys.version_info
+    if ver.major != 3 or ver.minor != 14:
+        raise Exception(f"环境错误：当前Python{ver.major}.{ver.minor}，项目仅支持Python3.14")
 
 def create_directories():
-    """创建必要的目录结构"""
-    print("📁 创建目录结构...")
+    """批量创建国标规定全部运行目录，不存在自动生成"""
+    print("【步骤1】创建标准项目目录结构")
     for dir_path in REQUIRED_DIRS:
-        path = PROJECT_ROOT / dir_path
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"   ✓ {dir_path}")
-
+        full_path = PROJECT_ROOT / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"√ {dir_path}")
 
 def create_default_locale():
-    """创建默认中文语言包"""
-    print("🌐 创建默认语言包...")
-    locale_path = PROJECT_ROOT / "assets" / "lib" / "zh-CN.json"
-    if not locale_path.exists():
-        with open(locale_path, "w", encoding="utf-8") as f:
+    """生成默认简体中文国际化配置文件assets/lib/zh-CN.json"""
+    print("【步骤2】初始化默认语言包")
+    locale_file = PROJECT_ROOT / "assets" / "lib" / "zh-CN.json"
+    if not locale_file.exists():
+        with open(locale_file, "w", encoding="utf-8") as f:
             json.dump(DEFAULT_ZH_CN, f, ensure_ascii=False, indent=2)
-        print("   ✓ zh-CN.json")
+        print("√ assets/lib/zh-CN.json 已新建")
     else:
-        print("   ✓ zh-CN.json (已存在)")
-
+        print("√ assets/lib/zh-CN.json 已存在，跳过")
 
 def create_venv():
-    """创建虚拟环境"""
-    print("🐍 创建虚拟环境...")
-    venv_path = PROJECT_ROOT / "venv"
-    if not venv_path.exists():
-        venv.EnvBuilder(with_pip=True).create(venv_path)
-        print("   ✓ venv/")
+    """生成项目独立虚拟环境venv文件夹"""
+    print("【步骤3】创建Python虚拟环境")
+    venv_dir = PROJECT_ROOT / "venv"
+    if not venv.exists():
+        venv.EnvBuilder(with_pip=True).create(venv_dir)
+        print("√ venv 虚拟环境创建完成")
     else:
-        print("   ✓ venv/ (已存在)")
-
+        print("√ venv 已存在，跳过")
 
 def install_dependencies():
-    """安装依赖包"""
-    print("📦 安装依赖...")
-    requirements_path = PROJECT_ROOT / "requirements.txt"
-    if requirements_path.exists():
-        # 确定 pip 路径
-        if sys.platform == "win32":
-            pip_path = PROJECT_ROOT / "venv" / "Scripts" / "pip.exe"
-        else:
-            pip_path = PROJECT_ROOT / "venv" / "bin" / "pip"
-
-        subprocess.check_call([str(pip_path), "install", "-r", str(requirements_path)])
-        print("   ✓ 依赖安装完成")
+    """读取requirements.txt批量安装项目依赖包"""
+    print("【步骤4】安装项目全部依赖库")
+    req_file = PROJECT_ROOT / "requirements.txt"
+    if not req_file.exists():
+        print("× requirements.txt 缺失，跳过依赖安装")
+        return
+    # 区分系统pip路径
+    if sys.platform == "win32":
+        pip_exe = PROJECT_ROOT / "venv" / "Scripts" / "pip.exe"
     else:
-        print("   ⚠ requirements.txt 不存在")
-
+        pip_exe = PROJECT_ROOT / "venv" / "bin" / "pip"
+    subprocess.check_call([str(pip_exe), "install", "-r", str(req_file)])
+    print("√ 依赖安装完成")
 
 def main():
-    """主函数"""
-    print("🚀 FeatherPen 环境初始化")
-    print("=" * 40)
-
+    """环境初始化统一入口函数"""
+    print("==== FeatherPen V1.0.0 标准化环境初始化 ====")
     try:
+        check_python_version()
         create_directories()
         create_default_locale()
         create_venv()
         install_dependencies()
-
-        print("=" * 40)
-        print("✅ 环境初始化完成！")
-        print("运行 python main.py 启动应用")
+        print("==== 全部环境初始化完成，执行 python main.py 启动程序 ====")
     except Exception as e:
-        print(f"❌ 初始化失败: {e}")
+        print(f"× 初始化失败：{str(e)}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-FeatherPen V1.0.0 国标环境初始化脚本
-适配GB/T 8567软件工程规范
-功能：自动创建国标规范运行目录、校验核心配置、初始化运行环境
-冗余内容已全部清理，仅保留标准化业务逻辑
-"""
-
-# 国标规范固定运行目录列表
-STANDARD_RUNTIME_DIRS = [
-    "runtime/cache",
-    "runtime/logs",
-    "runtime/temp",
-    "data/Book",
-    "data/database"
-]
-
-def init_project_environment():
-    """
-    初始化项目国标标准化运行环境
-    1. 创建规范目录结构
-    2. 校验核心配置文件完整性
-    3. 初始化空运行目录权限
-    """
-    # 批量创建国标规范目录
-    for dir_path in STANDARD_RUNTIME_DIRS:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path, exist_ok=True)
-
-    # 校验核心配置文件存在性
-    config_files = ["config.yaml", "member_config.json"]
-    missing_config = [f for f in config_files if not os.path.exists(f)]
-
-    if missing_config:
-        print(f"【国标校验失败】缺失核心配置文件：{missing_config}")
-        sys.exit(1)
-
-    print("【国标校验通过】FeatherPen V1.0.0 环境初始化完成")
-
-if __name__ == "__main__":
-    init_project_environment()
