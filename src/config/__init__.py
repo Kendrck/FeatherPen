@@ -1,9 +1,22 @@
-# Config配置模块统一导出规范
-# 适配 docs/dev/Project_Structure.md 配置分层标准
+# -*- coding: utf-8 -*-
+"""
+GB/T 8567-2006 config模块导出控制
+文件路径：FeatherPen/src/config/__init__.py
+规范：统一对外暴露标准接口，废弃历史别名load_global_config
+"""
+from .config_loader import (
+    config,
+    load_config,
+    load_member_config,
+    load_user_setting,
+    save_member_privilege,
+)
 
-from .db_sqlite import DB_CORE
-
-# 配置模块公开接口白名单
+# 标准对外导出清单
 __all__ = [
-    "DB_CORE"
+    "load_config",
+    "load_member_config",
+    "save_member_privilege",
+    "load_user_setting",
+    "config"
 ]

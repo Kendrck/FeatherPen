@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-自动配角识别与角色卡生成模块
-文件路径：core/role_extract.py
-生成标准化角色卡写入role_list.json，防止小说吃书人设崩坏
-"""
+"""自动配角识别与角色卡生成模块。"""
+
 import json
-from core.llm_api import llm_client
+
 
 class RoleExtractor:
     def extract_new_role(self, chapter_content: str, exist_role_name_list: list) -> list:

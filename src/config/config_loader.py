@@ -1,261 +1,139 @@
+# -*- coding: utf-8 -*-
 """
-全局配置加载模块
-1. 读取根目录config.yaml运行参数
-2. 读取member_config.json白名单与会员权限
-3. 参数非法自动回滚默认值
+GB/T 8567-2006 全局配置加载模块
+文件路径：FeatherPen/src/config/config_loader.py
+功能：分层加载系统配置，优先级：内置默认配置 < config.yaml < 环境变量
+约束：提供单一标准入口 load_config()，废弃所有别名；参数非法自动回落默认值
 """
-
 import json
+import os
 from pathlib import Path
+from typing import Any, Dict
 
 import yaml
 
-# 项目根目录定位
-ROOT_PATH = Path(__file__).parent.parent.parent
-YAML_PATH = ROOT_PATH / "config.yaml"
-MEMBER_JSON_PATH = ROOT_PATH / "member_config.json"
+# 项目根目录
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CONFIG_YAML = PROJECT_ROOT / "config.yaml"
+MEMBER_JSON = PROJECT_ROOT / "member_config.json"
+USER_CFG_PATH = PROJECT_ROOT / "data/Book/User/127001/user_setting.json"
+
+# 底层内置默认配置（兜底基准）
+DEFAULT_CONFIG: Dict[str, Any] = {
+    "network": {
+        "bind_address": "127.0.0.1",
+        "preferred_port": 6554,
+        "protocol": "tcp",
+        "connect_timeout": 15,
+        "read_timeout": 300,
+        "write_timeout": 120,
+        "max_concurrent_connections": 16,
+        "thread_pool_size": 8,
+        "enable_cors": True,
+    },
+    "security": {
+        "offline_fixed_uid": "127001",
+        "enable_cloud_auth": False,
+        "api_key": "",
+        "token_expire_hours": 24,
+        "enable_ssl": False,
+        "cert_file": "./certs/server.crt",
+        "key_file": "./certs/server.key",
+        "ip_whitelist": ["127.0.0.1"],
+        "ip_blacklist": [],
+        "log_mask_sensitive": True,
+    },
+    "storage": {
+        "data_root": "./data",
+        "offline_data_dir": "./data/Book/User/127001",
+        "cache_dir": "./runtime/cache",
+        "log_dir": "./runtime/logs",
+        "log_max_size_mb": 50,
+        "log_keep_days": 30,
+        "export_dir": "./export",
+    },
+    "runtime": {
+        "env_mode": "dev",
+        "max_memory_mb": 2048,
+        "pid_file": "./featherpen.pid",
+        "run_as_service": False,
+    },
+    "generator": {
+        "max_context_length": 8192,
+        "default_temperature": 0.7,
+    }
+}
 
 
-def load_global_config() -> dict:
-    """加载yaml全局系统配置"""
-    with open(YAML_PATH, "r", encoding="utf-8") as f:
-        cfg = yaml.safe_load(f)
+def merge_dict(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    递归深度合并字典配置
+    :param base: 基础默认配置
+    :param override: 外部覆盖配置
+    :return: 合并后完整配置字典
+    """
+    for k, v in override.items():
+        if isinstance(v, dict) and k in base and isinstance(base[k], dict):
+            merge_dict(base[k], v)
+        else:
+            base[k] = v
+    return base
+
+
+def load_config() -> Dict[str, Any]:
+    """
+    【标准唯一入口】加载全局系统配置
+    加载顺序：内置默认配置 → yaml文件 → 环境变量覆盖
+    """
+    cfg = DEFAULT_CONFIG.copy()
+    # 加载yaml配置文件
+    if CONFIG_YAML.exists():
+        try:
+            with open(CONFIG_YAML, "r", encoding="utf-8") as f:
+                yaml_data = yaml.safe_load(f) or {}
+                merge_dict(cfg, yaml_data)
+        except Exception:
+            pass
+    # 环境变量覆盖端口与离线UID
+    env_port = os.getenv("FP_NETWORK_PREFERRED_PORT")
+    if env_port and env_port.isdigit():
+        cfg["network"]["preferred_port"] = int(env_port)
+    env_uid = os.getenv("FP_SECURITY_OFFLINE_UID")
+    if env_uid:
+        cfg["security"]["offline_fixed_uid"] = env_uid
     return cfg
 
 
-def load_member_config() -> dict:
-    """加载会员白名单、Lv9特权、积分扣费配置"""
-    with open(MEMBER_JSON_PATH, "r", encoding="utf-8") as f:
-        member_cfg = json.load(f)
-    return member_cfg
+def load_member_config() -> Dict[str, Any]:
+    """加载会员等级、积分权限配置"""
+    if not MEMBER_JSON.exists():
+        raise FileNotFoundError("缺失配置文件：member_config.json")
+    with open(MEMBER_JSON, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
-def save_member_privilege(cfg: dict):
-    """持久化更新Lv9扣费开关配置"""
-    with open(MEMBER_JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(cfg, f, ensure_ascii=False, indent=2)
+def save_member_privilege(new_cfg: Dict[str, Any]) -> None:
+    """持久化会员特权配置修改"""
+    with open(MEMBER_JSON, "w", encoding="utf-8") as f:
+        json.dump(new_cfg, ensure_ascii=False, indent=2)
 
 
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-全局配置加载模块
-
-负责加载 config.yaml 和 member_config.json，提供统一的配置访问接口。
-所有配置项均带有类型提示和默认值回滚机制。
-"""
-
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List
-
-# 项目根目录
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-
-# 配置文件路径
-CONFIG_YAML_PATH = PROJECT_ROOT / "config.yaml"
-MEMBER_CONFIG_PATH = PROJECT_ROOT / "member_config.json"
-
-
-@dataclass
-class AppConfig:
-    """应用配置数据类"""
-
-    run_mode: int
-    soft_name: str
-    soft_cn_name: str
-    soft_version: str
-    db_secret_key: str
-    yesapi_app_key: str
-    yesapi_app_secret: str
-    test_account_enable: bool
-    lv9_skip_point_default: bool
-    daily_sign_point: int
-    ad_reward_point: int
-
-
-@dataclass
-class MemberConfig:
-    """会员配置数据类"""
-
-    test_account_uid: List[Dict[str, Any]]
-    cloud_privilege: Dict[str, Any]
-    point_cost: Dict[str, int]
-    member_level: List[Dict[str, Any]]
-
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-全局配置加载模块
-
-负责加载 config.yaml 和 member_config.json，提供统一的配置访问接口。
-所有配置项均带有类型提示和默认值回滚机制。
-"""
-
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List
-
-# 项目根目录
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-
-# 配置文件路径
-CONFIG_YAML_PATH = PROJECT_ROOT / "config.yaml"
-MEMBER_CONFIG_PATH = PROJECT_ROOT / "member_config.json"
-
-
-@dataclass
-class AppConfig:
-    """应用配置数据类"""
-
-    run_mode: int
-    soft_name: str
-    soft_cn_name: str
-    soft_version: str
-    db_secret_key: str
-    yesapi_app_key: str
-    yesapi_app_secret: str
-    test_account_enable: bool
-    lv9_skip_point_default: bool
-    daily_sign_point: int
-    ad_reward_point: int
-
-
-@dataclass
-class MemberConfig:
-    """会员配置数据类"""
-
-    test_account_uid: List[Dict[str, Any]]
-    cloud_privilege: Dict[str, Any]
-    point_cost: Dict[str, int]
-    member_level: List[Dict[str, Any]]
-
-
-class ConfigLoader:
-    """配置加载器单例"""
-
-    _instance = None
-    _app_config: AppConfig = None
-    _member_config: MemberConfig = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
-    def load_config(self) -> None:
-        """加载所有配置文件"""
-        self._load_yaml_config()
-        self._load_member_config()
-
-    def _load_yaml_config(self) -> None:
-        """加载 config.yaml"""
-        if not CONFIG_YAML_PATH.exists():
-            raise FileNotFoundError(f"配置文件不存在: {CONFIG_YAML_PATH}")
-
-        with open(CONFIG_YAML_PATH, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-
-        # 提取 system 配置
-        system = data.get("system", {})
-        signin = data.get("signin", {})
-        point = data.get("point", {})
-
-        self._app_config = AppConfig(
-            run_mode=system.get("run_mode", 0),
-            soft_name=system.get("soft_name", "FeatherPen"),
-            soft_cn_name=system.get("soft_cn_name", "羽笔"),
-            soft_version=system.get("soft_version", "1.0.0"),
-            db_secret_key=system.get("db_secret_key", ""),
-            yesapi_app_key=system.get("yesapi_app_key", ""),
-            yesapi_app_secret=system.get("yesapi_app_secret", ""),
-            test_account_enable=signin.get("test_account_enable", True),
-            lv9_skip_point_default=signin.get("lv9_skip_point_default", True),
-            daily_sign_point=point.get("daily_sign_point", 100),
-            ad_reward_point=point.get("ad_reward_point", 50),
-        )
-
-    def _load_member_config(self) -> None:
-        """加载 member_config.json"""
-        if not MEMBER_CONFIG_PATH.exists():
-            raise FileNotFoundError(f"会员配置文件不存在: {MEMBER_CONFIG_PATH}")
-
-        with open(MEMBER_CONFIG_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        self._member_config = MemberConfig(
-            test_account_uid=data.get("test_account_uid", []),
-            cloud_privilege=data.get("cloud_privilege", {}),
-            point_cost=data.get("point_cost", {}),
-            member_level=data.get("member_level", []),
-        )
-
-    @property
-    def app(self) -> AppConfig:
-        """获取应用配置"""
-        if self._app_config is None:
-            self.load_config()
-        return self._app_config
-
-    @property
-    def member(self) -> MemberConfig:
-        """获取会员配置"""
-        if self._member_config is None:
-            self.load_config()
-        return self._member_config
-
-
-# 全局配置实例
-config = ConfigLoader()
-
-
-def load_global_config() -> AppConfig:
-    """快捷函数：加载全局应用配置"""
-    return config.app
-
-
-def load_member_config() -> MemberConfig:
-    """快捷函数：加载会员配置"""
-    return config.member
-"""
-GB/T 8567-2006 国标业务注释
-文件路径：FeatherPen/src/config/config_loader.py
-功能：加载全局离线配置文件
-约束：仅读取本地配置，无远程拉取逻辑
-"""
-import os
-
-
-def load_config() -> dict:
-    """
-    加载 FeatherPen 全局离线配置
-    若配置文件不存在，则返回默认离线配置
-    """
-    config_path = os.path.join("data", "Book", "User", "user_setting.json")
-
-    default_config = {
-        "signin": {
-            "lv9_skip_point_default": False,
-            "lv9_pressure_default": False
-        },
-        "database": {
-            "db_path": "featherpen.db"
-        },
-        "crypto": {
-            "aes_key": "FeatherPen2025OfflineKey"
-        },
-        "model": {
-            "local_api": "http://127.0.0.1:1234/v1",
-            "model_name": "qwen2.5-14b-instruct-1m"
-        }
+def load_user_setting() -> Dict[str, Any]:
+    """加载离线游客个性化配置，缺失返回默认模板"""
+    default_user = {
+        "signin": {"lv9_skip_point_default": False, "lv9_pressure_default": False},
+        "database": {"db_path": "featherpen.db"},
+        "crypto": {"aes_key": "FeatherPen2026OfflineKey"},
+        "model": {"local_api": "http://127.0.0.1:1234/v1", "model_name": "qwen2.5-14b-instruct"}
     }
-
-    if not os.path.exists(config_path):
-        return default_config
-
+    if not USER_CFG_PATH.exists():
+        return default_user
     try:
-        with open(config_path, "r", encoding="utf-8") as f:
+        with open(USER_CFG_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
     except Exception:
-        return default_config
+        return default_user
+
+
+# 全局单例导出
+config = load_config()

@@ -7,7 +7,6 @@ GB/T 8567 FastAPI后端服务入口
 from fastapi import FastAPI
 
 from src.account.local_login import verify_local_account
-from src.utils.monitor.hardware_collect import get_mainboard_sn
 
 app = FastAPI(title="FeatherPen V1.0.0 离线API", version="1.0.0")
 
@@ -22,11 +21,6 @@ def api_local_login(payload: dict):
     uid = payload.get("uid", "").strip()
     pwd = payload.get("password", "").strip()
     return verify_local_account(uid, pwd)
-
-@app.get("/api/v1/hardware/sn")
-def api_get_mb_sn():
-    """读取本机主板序列号（自动登录专用）"""
-    return {"sn": get_mainboard_sn()}
 
 @app.post("/api/v1/local/toggle_skip_point")
 def api_toggle_skip(payload: dict):

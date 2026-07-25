@@ -5,19 +5,21 @@
 新增功能：满50章自动触发全套校正（角色+时间线+全文校验）仅扣5积分
 精简所有冗余提示信息，静默执行核心逻辑
 """
-import os
 import json
 from pathlib import Path
-from config.config_loader import global_cfg, ROOT_PATH
-from core.llm_api import llm_client
-from core.memory_filter import memory_filter
-from core.role_extract import role_extractor
-from account.point_system import point_sys
+
+from src.account.point_system import deduct_point
+from src.config.config_loader import load_config
+from src.core.llm_api import llm_client
+from src.core.memory_filter import memory_filter
+from src.core.role_extract import role_extractor
+
 
 class NovelAutoGenerator:
     def __init__(self, book_name: str):
-        # 小说工程根路径
-        self.book_root = ROOT_PATH / global_cfg.get_ini("Path", "book_root_path") / book_name
+        self._config = load_config()
+        project_root = Path(__file__).resolve().parents[2]
+        self.book_root = project_root / "data" / "Book" / book_name
         # 核心配置文件路径
         self.book_info_path = self.book_root / "book_info.json"
         self.role_list_path = self.book_root / "role_list.json"
@@ -57,7 +59,8 @@ class NovelAutoGenerator:
         仅扣除固定5积分
         """
         # 执行专属5积分扣费
-        if not point_sys.deduct_auto_50check():
+        auto_check_result = deduct_point("000000", "auto_check_100")
+        if not auto_check_result.get("deduct_success", False):
             return False
 
         # 1. 自动整理全部角色档案
@@ -70,7 +73,8 @@ class NovelAutoGenerator:
     def gen_single_chapter(self, chapter_outline: str, chapter_num: int) -> tuple[bool, str]:
         """生成单章正文，扣费2积分"""
         # 单章生成扣费
-        if not point_sys.deduct_point("gen_chapter"):
+        deduct_result = deduct_point("000000", "gen_chapter")
+        if not deduct_result.get("deduct_success", False):
             return False, ""
 
         # 读取历史章节

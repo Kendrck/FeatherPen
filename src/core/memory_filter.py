@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-上下文素材智能过滤模块
-文件路径：core/memory_filter.py
-根据会员等级限制投喂历史章节、大纲数量，过滤无关角色减少token溢出
-"""
-from account.member_ctrl import member_ctrl
+"""上下文素材智能过滤模块。"""
+
+from __future__ import annotations
+
+from typing import Any, Dict
+
 
 class MemoryFilter:
-    def __init__(self):
-        # 获取当前用户会员限制
-        self.user_limit = member_ctrl.get_user_limit()
+    def __init__(self) -> None:
+        self.user_limit: Dict[str, Any] = {"max_send_chapter": 5, "max_send_outline": 10}
 
     def filter_history_chapter(self, all_chapter_list: list) -> list:
         """

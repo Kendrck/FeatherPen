@@ -1,4 +1,5 @@
-# GB/T 8567 全局系统配置文件
+# GB/T 8567 全局标准化离线配置文件
+# 配置优先级：内置默认 < config.yaml < 系统环境变量FP_*
 system:
   run_mode: offline
   soft_name: FeatherPen
@@ -25,10 +26,10 @@ monitor:
   hardware_monitor_refresh_sec: 5
 local_api:
   base_url: http://127.0.0.1:1234/v1
+  timeout: 120
 cloud_api:
   base_url: ""
   api_key: ""
-  timeout: 120
 local_file:
   gguf_path: ""
   ctx_len: 32768
@@ -38,5 +39,41 @@ model_common:
   temperature: 0.8
   max_tokens: 2048
   top_p: 0.9
-Path:
-  book_root_path: data/Book
+# 本地TCP网络全局固化配置（仅内网127.0.0.1）
+network:
+  bind_address: "127.0.0.1"
+  preferred_port: 6554
+  protocol: tcp
+  connect_timeout: 15
+  read_timeout: 300
+  write_timeout: 120
+  max_concurrent_connections: 16
+  thread_pool_size: 8
+  enable_cors: true
+security:
+  offline_fixed_uid: "127001"
+  enable_cloud_auth: false
+  api_key: ""
+  token_expire_hours: 24
+  enable_ssl: false
+  cert_file: "./certs/server.crt"
+  key_file: "./certs/server.key"
+  ip_whitelist: ["127.0.0.1"]
+  ip_blacklist: []
+  log_mask_sensitive: true
+storage:
+  data_root: "./data"
+  offline_data_dir: "./data/Book/User/127001"
+  cache_dir: "./runtime/cache"
+  log_dir: "./runtime/logs"
+  log_max_size_mb: 50
+  log_keep_days: 30
+  export_dir: "./export"
+runtime:
+  env_mode: dev
+  max_memory_mb: 2048
+  pid_file: "./featherpen.pid"
+  run_as_service: false
+generator:
+  max_context_length: 8192
+  default_temperature: 0.7

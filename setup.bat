@@ -38,3 +38,14 @@ if %errorlevel% equ 0 (
 )
 :: 执行完毕暂停窗口，防止双击运行后直接闪退，方便查看日志
 pause
+@echo off
+chcp 65001
+:: FeatherPen Windows环境初始化脚本
+echo ==============================================
+echo           FeatherPen 环境初始化工具
+echo ==============================================
+python init_env.py
+echo.
+echo 初始化完毕！启动命令：python main.py
+echo.
+pause

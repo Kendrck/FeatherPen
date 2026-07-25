@@ -1,22 +1,22 @@
 {
-  "desc": "V1.0.0纯离线会员配置，UID统一6位数字，全局积分固定999999999；云端功能V2.0迭代，账号规范：用户名6-20位，仅字母数字_-.，密码≥6位",
+  "desc": "V1.0.0纯离线本地会员配置，UID6位数字，全局积分999999999；云端功能V2.0迭代",
   "default_member_list": [
-    {"level": 1, "uid": "111111", "pwd": "passwd", "point": 999999999, "desc": "Lv1 初闻 离线测试账号"},
-    {"level": 2, "uid": "222222", "pwd": "passwd", "point": 999999999, "desc": "Lv2 薄名 离线测试账号"},
-    {"level": 3, "uid": "333333", "pwd": "passwd", "point": 999999999, "desc": "Lv3 浅露 离线测试账号"},
-    {"level": 4, "uid": "444444", "pwd": "passwd", "point": 999999999, "desc": "Lv4 知名 离线测试账号"},
-    {"level": 5, "uid": "555555", "pwd": "passwd", "point": 999999999, "desc": "Lv5 显赫 离线测试账号"},
-    {"level": 6, "uid": "666666", "pwd": "passwd", "point": 999999999, "desc": "Lv6 盛传 离线测试账号"},
-    {"level": 7, "uid": "777777", "pwd": "passwd", "point": 999999999, "desc": "Lv7 昭著 离线测试账号"},
-    {"level": 8, "uid": "888888", "pwd": "passwd", "point": 999999999, "desc": "Lv8 传奇 离线测试账号"},
-    {"level": 9, "uid": "999999", "pwd": "passwd", "point": 999999999, "desc": "Lv9 不朽 特权账号1"},
-    {"level": 9, "uid": "000000", "pwd": "passwd", "point": 999999999, "desc": "Lv9 不朽 特权账号2"}
+    {"level": 1, "uid": "111111", "pwd": "passwd", "point": 999999999, "desc": "Lv1 初闻 离线测试账号，账号6-20位字符规范"},
+    {"level": 2, "uid": "222222", "pwd": "passwd", "point": 999999999, "desc": "Lv2 薄名 离线测试账号，账号6-20位字符规范"},
+    {"level": 3, "uid": "333333", "pwd": "passwd", "point": 999999999, "desc": "Lv3 浅露 离线测试账号，账号6-20位字符规范"},
+    {"level": 4, "uid": "444444", "pwd": "passwd", "point": 999999999, "desc": "Lv4 知名 离线测试账号，账号6-20位字符规范"},
+    {"level": 5, "uid": "555555", "pwd": "passwd", "point": 999999999, "desc": "Lv5 显赫 离线测试账号，账号6-20位字符规范"},
+    {"level": 6, "uid": "666666", "pwd": "passwd", "point": 999999999, "desc": "Lv6 盛传 离线测试账号，账号6-20位字符规范"},
+    {"level": 7, "uid": "777777", "pwd": "passwd", "point": 999999999, "desc": "Lv7 昭著 离线测试账号，账号6-20位字符规范"},
+    {"level": 8, "uid": "888888", "pwd": "passwd", "point": 999999999, "desc": "Lv8 传奇 离线测试账号，账号6-20位字符规范"},
+    {"level": 9, "uid": "999999", "pwd": "passwd", "point": 999999999, "desc": "Lv9 不朽特权账号1，支持积分豁免开关"},
+    {"level": 9, "uid": "000000", "pwd": "passwd", "point": 999999999, "desc": "Lv9 不朽特权账号2，支持积分豁免开关"}
   ],
   "cloud_privilege": {
     "lv9_uid_list": [],
     "skip_point_deduct": false,
     "pressure_mode_unlock": false,
-    "note": "云端特权同步功能推迟至V2.0开发，V1.0仅本地配置生效"
+    "note": "云端账号同步、在线充值功能延后至V2.0开发"
   },
   "auto_rule": {
     "check_chapter_limit": 50,
@@ -46,7 +46,7 @@
       "monitor_history_replay": true,
       "init_point": 999999999,
       "daily_point_limit": 10,
-      "desc": "离线游客账号，账号输入遵循6-20位字符规范"
+      "desc": "离线游客UID=127001，跳过账号正则校验，无网络交互"
     },
     {
       "level": 1,
@@ -61,7 +61,7 @@
       "monitor_history_replay": false,
       "init_point": 999999999,
       "daily_point_limit": 10,
-      "desc": "标准离线账号，账号输入遵循6-20位字符规范"
+      "desc": "标准离线账号，账号6-20位字符强制校验"
     },
     {
       "level": 2,
@@ -76,7 +76,7 @@
       "monitor_history_replay": false,
       "init_point": 999999999,
       "daily_point_limit": 10,
-      "desc": "标准离线账号，账号输入遵循6-20位字符规范"
+      "desc": "标准离线账号，账号6-20位字符强制校验"
     },
     {
       "level": 3,
@@ -91,7 +91,7 @@
       "monitor_history_replay": false,
       "init_point": 999999999,
       "daily_point_limit": 10,
-      "desc": "标准离线账号，账号输入遵循6-20位字符规范"
+      "desc": "标准离线账号，账号6-20位字符强制校验"
     },
     {
       "level": 4,
@@ -106,7 +106,7 @@
       "monitor_history_replay": false,
       "init_point": 999999999,
       "daily_point_limit": 10,
-      "desc": "标准离线账号，账号输入遵循6-20位字符规范"
+      "desc": "标准离线账号，账号6-20位字符强制校验"
     },
     {
       "level": 5,
@@ -121,7 +121,7 @@
       "monitor_history_replay": true,
       "init_point": 999999999,
       "daily_point_limit": 10,
-      "desc": "标准离线账号，账号输入遵循6-20位字符规范"
+      "desc": "标准离线账号，账号6-20位字符强制校验"
     },
     {
       "level": 6,
@@ -136,7 +136,7 @@
       "monitor_history_replay": true,
       "init_point": 999999999,
       "daily_point_limit": 10,
-      "desc": "标准离线账号，账号输入遵循6-20位字符规范"
+      "desc": "标准离线账号，账号6-20位字符强制校验"
     },
     {
       "level": 7,
@@ -151,7 +151,7 @@
       "monitor_history_replay": true,
       "init_point": 999999999,
       "daily_point_limit": 10,
-      "desc": "标准离线账号，账号输入遵循6-20位字符规范"
+      "desc": "标准离线账号，账号6-20位字符强制校验"
     },
     {
       "level": 8,
@@ -166,7 +166,7 @@
       "monitor_history_replay": true,
       "init_point": 999999999,
       "daily_point_limit": 10,
-      "desc": "民用满级离线账号，账号输入遵循6-20位字符规范"
+      "desc": "民用满级离线账号，账号6-20位字符强制校验"
     },
     {
       "level": 9,
@@ -181,7 +181,7 @@
       "monitor_history_replay": true,
       "init_point": 999999999,
       "daily_point_limit": 999999,
-      "desc": "特权账号，支持积分豁免开关，账号输入遵循6-20位字符规范"
+      "desc": "特权账号，支持积分豁免、亿级压测解锁"
     }
   ]
 }

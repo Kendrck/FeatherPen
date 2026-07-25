@@ -115,3 +115,94 @@ def save_member_privilege(new_cfg: dict):
     """持久化Lv9积分豁免开关至json文件"""
     with open(MEMBER_JSON, "w", encoding="utf-8") as f:
         json.dump(new_cfg, f, ensure_ascii=False, indent=2)
+"""
+GB/T 8567 国标注释
+全局配置加载模块
+配置合并规则：内置默认配置 < config.yaml < 系统环境变量
+定义离线固定UID、端口分配基础参数
+"""
+import os
+from typing import Any, Dict
+
+# 内置底层默认配置
+DEFAULT_CONFIG: Dict[str, Any] = {
+    "network": {
+        "bind_address": "127.0.0.1",
+        "preferred_port": 6554,
+        "protocol": "tcp",
+        "connect_timeout": 15,
+        "read_timeout": 300,
+        "write_timeout": 120,
+        "max_concurrent_connections": 16,
+        "thread_pool_size": 8,
+        "enable_cors": True,
+    },
+    "security": {
+        "offline_fixed_uid": "127001",
+        "enable_cloud_auth": False,
+        "api_key": "",
+        "token_expire_hours": 24,
+        "enable_ssl": False,
+        "cert_file": "./certs/server.crt",
+        "key_file": "./certs/server.key",
+        "ip_whitelist": ["127.0.0.1"],
+        "ip_blacklist": [],
+        "log_mask_sensitive": True,
+    },
+    "storage": {
+        "data_root": "./data",
+        "offline_user_data": "./data/Book/User/127001",
+        "cache_dir": "./runtime/cache",
+        "log_dir": "./runtime/logs",
+        "log_max_size_mb": 50,
+        "log_keep_days": 30,
+        "export_dir": "./export",
+    },
+    "runtime": {
+        "env_mode": "dev",
+        "max_memory_mb": 2048,
+        "pid_file": "./featherpen.pid",
+        "run_as_service": False,
+    },
+    "generator": {
+        "max_context_length": 8192,
+        "default_temperature": 0.7,
+    }
+}
+
+def merge_dict(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    """递归深度合并配置字典，子字典覆盖、基础值直接替换"""
+    for k, v in override.items():
+        if isinstance(v, dict) and k in base and isinstance(base[k], dict):
+            merge_dict(base[k], v)
+        else:
+            base[k] = v
+    return base
+
+def load_config() -> Dict[str, Any]:
+    """逐层加载并合并全部配置"""
+    cfg = DEFAULT_CONFIG.copy()
+    # 读取yaml配置文件
+    if os.path.exists("config.yaml"):
+        try:
+            with open("config.yaml", "r", encoding="utf-8") as f:
+                yaml_config = yaml.safe_load(f) or {}
+                merge_dict(cfg, yaml_config)
+        except Exception:
+            pass
+    # 环境变量覆盖参数
+    env_bind = os.getenv("FP_NETWORK_BIND_ADDRESS")
+    if env_bind:
+        cfg["network"]["bind_address"] = env_bind
+
+    env_port = os.getenv("FP_NETWORK_PREFERRED_PORT")
+    if env_port and env_port.isdigit():
+        cfg["network"]["preferred_port"] = int(env_port)
+
+    env_offline_uid = os.getenv("FP_SECURITY_OFFLINE_UID")
+    if env_offline_uid:
+        cfg["security"]["offline_fixed_uid"] = env_offline_uid
+    return cfg
+
+# 全局单例配置导出
+config = load_config()

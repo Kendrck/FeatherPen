@@ -1,0 +1,148 @@
+<!--
+GB/T 8567-2006 国标代码注释
+文件路径：FeatherPen/web/pages/login.html
+功能描述：独立登录页面，包含前端实时输入校验与拦截提示逻辑。
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>FeatherPen 离线登录</title>
+    <style>
+        .error-tip { color: #e74c3c; font-size: 12px; margin-top: 4px; min-height: 16px; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <form id="loginForm">
+        <input type="text" id="accountInput" placeholder="账号(UID/邮箱/手机号)" autocomplete="off">
+        <div id="accountTip" class="error-tip"></div>
+        
+        <input type="password" id="passwordInput" placeholder="密码(至少8位，含字母与数字)">
+        <div id="passwordTip" class="error-tip"></div>
+    </form>
+
+    <script>
+        /* 账号实时校验拦截 */
+        document.getElementById('accountInput').addEventListener('input', function() {
+            const val = this.value.trim();
+            const tip = document.getElementById('accountTip');
+            if (/[^a-zA-Z0-9@.\-_]/.test(val)) {
+                tip.innerText = '账号包含非法字符';
+            } else if (val.length > 0 && (val.length < 6 || val.length > 20)) {
+                tip.innerText = '账号长度需在6-20位之间';
+            } else {
+                tip.innerText = '';
+            }
+        });
+
+        /* 密码失焦校验拦截 */
+        document.getElementById('passwordInput').addEventListener('blur', function() {
+            const val = this.value;
+            const tip = document.getElementById('passwordTip');
+            if (val && !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(val)) {
+                tip.innerText = '密码需至少8位，且包含字母与数字';
+            } else {
+                tip.innerText = '';
+            }
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>FeatherPen 登录</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+    <div class="login-box">
+        <h2>离线本地登录</h2>
+        <div class="input-item">
+            <label>账号</label>
+            <input type="text" id="uid" placeholder="6-20位字母/数字/_-. 或邮箱；输入127001直接离线游客登录">
+            <span id="uid_tip" class="error-tip"></span>
+        </div>
+        <div class="input-item">
+            <label>密码</label>
+            <input type="password" id="pwd" placeholder="密码至少6位，推荐字母数字混合">
+            <span id="pwd_tip" class="error-tip"></span>
+        </div>
+        <button id="login_btn">登录</button>
+    </div>
+    <script>
+        // 全局统一校验正则，与后端完全同步
+        const USERNAME_REG = /^[a-zA-Z0-9_\-.]{6,20}$/;
+        const EMAIL_REG = /^[a-zA-Z0-9_\-.]+@[a-zA-Z0-9_\-.]+\.[a-zA-Z]{2,}$/;
+        const PWD_REG = /^.{6,}$/;
+        const OFFLINE_UID = "127001";
+
+        const uidInput = document.getElementById("uid");
+        const pwdInput = document.getElementById("pwd");
+        const uidTip = document.getElementById("uid_tip");
+        const pwdTip = document.getElementById("pwd_tip");
+        const loginBtn = document.getElementById("login_btn");
+
+        /** 账号输入实时校验 */
+        function checkUsername(inputStr) {
+            const trimStr = inputStr.trim();
+            uidTip.innerText = "";
+            // 离线固定UID直接放行
+            if (trimStr === OFFLINE_UID) return true;
+            if (trimStr.length < 6 || trimStr.length > 20) {
+                uidTip.innerText = "账号长度必须6-20位";
+                return false;
+            }
+            if (trimStr.includes("@")) {
+                if (!EMAIL_REG.test(trimStr)) {
+                    uidTip.innerText = "邮箱格式非法";
+                    return false;
+                }
+            } else {
+                if (!USERNAME_REG.test(trimStr)) {
+                    uidTip.innerText = "账号仅允许字母、数字、_-.，禁止中文空格特殊符号";
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /** 密码输入实时校验 */
+        function checkPassword(pwdStr) {
+            const trimPwd = pwdStr.trim();
+            pwdTip.innerText = "";
+            if (!PWD_REG.test(trimPwd)) {
+                pwdTip.innerText = "密码最少6位，推荐8位以上混合字符";
+                return false;
+            }
+            return true;
+        }
+
+        // 失去焦点实时校验
+        uidInput.addEventListener("blur", () => checkUsername(uidInput.value));
+        pwdInput.addEventListener("blur", () => checkPassword(pwdInput.value));
+
+        // 登录按钮点击事件
+        loginBtn.addEventListener("click", async () => {
+            const uid = uidInput.value.trim();
+            const pwd = pwdInput.value.trim();
+            const uidOk = checkUsername(uid);
+            const pwdOk = checkPassword(pwd);
+            if (!uidOk || !pwdOk) return;
+            // 请求后端登录接口
+            const res = await fetch("/api/v1/user/login", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({uid, password: pwd})
+            });
+            const data = await res.json();
+            if (data.code === 200) {
+                window.location.href = "./workbench.html";
+            } else {
+                alert(data.detail);
+            }
+        })
+    </script>
+</body>
+</html>
