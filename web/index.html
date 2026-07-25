@@ -1,14 +1,148 @@
-<!-- 登录框国标实时校验JS，与后端正则完全同步 -->
+<!--
+GB/T 8567-2006 前端离线登录首页
+文件路径: FeatherPen/web/index.html
+功能：离线账号登录页面，前端实时账号/密码双层校验，JS与后端正则完全对齐
+约束：支持空白登录自动使用游客UID=127001；区分游客UID、6位特权账号豁免规则
+交互：无输入时按钮显示【离线进入】，输入任意内容自动切换【在线登录】
+修复：1.修正DOM绑定错误；2.登录点击实时读取输入，杜绝缓存校验不同步；3.在线账号密码正常校验
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>FeatherPen 羽笔 V1.0.0 - 离线登录</title>
+    <style>
+        /* 基础页面标准化布局 */
+        body {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .login-box {
+            width: 420px;
+            padding: 32px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 28px;
+            color: #222;
+        }
+        .item {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #444;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px #dcdfe6 solid;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        #tip {
+            height: 20px;
+            font-size: 13px;
+            color: #f53f3f;
+            margin: 4px 0 12px;
+        }
+        #loginBtn {
+            width: 100%;
+            height: 42px;
+            background: #409eff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        #loginBtn:hover {
+            background: #66b1ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="title">FeatherPen V1.0.0</div>
+        <div class="item">
+            <label>账号UID</label>
+            <input id="uidInput" placeholder="离线游客固定UID：127001">
+        </div>
+        <div class="item">
+            <label>登录密码</label>
+            <input id="pwdInput" type="password" placeholder="密码最少6位">
+        </div>
+        <div id="tip"></div>
+        <button id="loginBtn">离线进入</button>
+    </div>
+
 <script>
-// 前后端统一正则，无重复定义
+/**
+ * 账号密码前端校验模块
+ * GB/T约束：与后端src/account/local_login.py正则完全同步
+ * 豁免规则：127001游客、000000~999999六位特权账号跳过通用正则
+ * 新增逻辑：账号输入框为空时，自动使用离线游客UID 127001
+ * 交互规则：无任何输入按钮显示【离线进入】，输入任意内容切换【在线登录】
+ * 修复：登录点击实时读取输入值，不使用失焦缓存，彻底解决在线用户密码误报
+ */
+// 前后端统一正则常量
 const USERNAME_REG = /^[a-zA-Z0-9_\-.]{6,20}$/;
 const EMAIL_REG = /^[a-zA-Z0-9_\-.]+@[a-zA-Z0-9_\-.]+\.[a-zA-Z]{2,}$/;
 const PWD_REG = /^.{6,}$/;
+// 豁免校验UID集合
 const OFFLINE_GUEST_UID = "127001";
 const PRIVILEGE_UID = new Set(["000000","111111","222222","333333","444444","555555","666666","777777","888888","999999"]);
 
+// 【修复正确DOM绑定】
+const tipDom = document.getElementById("tip");
+const uidInput = document.getElementById("uidInput");
+const pwdInput = document.getElementById("pwdInput");
+const loginBtn = document.getElementById("loginBtn");
+
+/**
+ * 判断输入框是否存在内容
+ * @returns {boolean} true=有输入，false=账号密码全部空白
+ */
+function hasUserInput() {
+    const uidVal = uidInput.value.trim();
+    const pwdVal = pwdInput.value.trim();
+    return uidVal !== "" || pwdVal !== "";
+}
+
+/**
+ * 更新登录按钮文字
+ */
+function refreshBtnText() {
+    if (hasUserInput()) {
+        loginBtn.innerText = "在线登录";
+    } else {
+        loginBtn.innerText = "离线进入";
+    }
+}
+
+/**
+ * 账号格式校验函数
+ * @param {string} inputStr 用户输入账号
+ * @returns {object} {ok:布尔, msg:提示文案, autoGuest:是否自动游客}
+ */
 function checkUsername(inputStr) {
     const trim = inputStr.trim();
+    // 空白账号：自动启用离线游客
+    if (trim === "") return {ok:true, msg:"", autoGuest:true};
     if(PRIVILEGE_UID.has(trim) || trim === OFFLINE_GUEST_UID) return {ok:true, msg:""};
     if(trim.length <6 || trim>20) return {ok:false, msg:"账号长度6-20位"};
     if(trim.includes("@")){
@@ -19,9 +153,74 @@ function checkUsername(inputStr) {
     return {ok:true, msg:""};
 }
 
-function checkPassword(pwdStr) {
+/**
+ * 密码格式校验函数
+ * @param {string} pwdStr 用户输入密码
+ * @param {boolean} isGuest 是否游客自动登录
+ * @returns {object} {ok:布尔, msg:提示文案}
+ */
+function checkPassword(pwdStr, isGuest = false) {
     const trim = pwdStr.trim();
+    // 游客自动登录：空白密码放行，交由后端校验游客权限
+    if(isGuest && trim === "") return {ok:true, msg:""};
     if(!PWD_REG.test(trim)) return {ok:false, msg:"密码最少6位"};
     return {ok:true, msg:""};
 }
+
+// 输入实时监听，切换按钮文字
+uidInput.addEventListener("input", refreshBtnText);
+pwdInput.addEventListener("input", refreshBtnText);
+
+// 输入失焦仅提示，不作为登录判断依据
+uidInput.addEventListener("blur", ()=>{
+    const res = checkUsername(uidInput.value.trim());
+    tipDom.innerText = res.msg;
+})
+pwdInput.addEventListener("blur", ()=>{
+    const res = checkPassword(pwdInput.value.trim(), false);
+    tipDom.innerText = res.msg;
+})
+
+// 登录按钮点击：【核心修复】点击瞬间实时读取最新输入，不依赖失焦缓存
+loginBtn.addEventListener("click", async ()=>{
+    tipDom.innerText = ""; // 清空上次错误提示
+    // 点击时实时读取最新输入，杜绝输入缓存不同步
+    let uid = uidInput.value.trim();
+    const pwd = pwdInput.value.trim();
+    const uidCheck = checkUsername(uid);
+
+    let useGuest = false;
+    if (uidCheck.autoGuest) {
+        uid = OFFLINE_GUEST_UID;
+        useGuest = true;
+    }
+
+    // 登录时重新实时校验，完全以当前输入为准
+    if(!uidCheck.ok){
+        tipDom.innerText = uidCheck.msg;
+        return;
+    }
+    const pwdCheck = checkPassword(pwd, useGuest);
+    if(!pwdCheck.ok){
+        tipDom.innerText = pwdCheck.msg;
+        return;
+    }
+
+    // 校验通过发起请求
+    const res = await fetch("/api/v1/user/login", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({uid,password:pwd})
+    })
+    const data = await res.json();
+    if(data.code === 200){
+        tipDom.style.color = "#00b42a";
+        tipDom.innerText = "登录成功，跳转工作台";
+        setTimeout(()=>window.location.href="./pages/workbench.html", 800);
+    }else{
+        tipDom.style.color = "#f53f3f";
+        tipDom.innerText = data.detail;
+    }
+})
 </script>
+</body>

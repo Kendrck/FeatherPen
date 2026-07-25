@@ -1,22 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-GB/T 8567-2006 config模块导出控制
+GB/T 8567-2006 config模块导出入口
 文件路径：FeatherPen/src/config/__init__.py
-规范：统一对外暴露标准接口，废弃历史别名load_global_config
+功能：统一向外暴露配置加载函数，禁止导出不存在的config变量
 """
-from .config_loader import (
-    config,
-    load_config,
-    load_member_config,
-    load_user_setting,
-    save_member_privilege,
-)
+from .config_loader import load_global_config, load_member_config, save_member_config
 
-# 标准对外导出清单
 __all__ = [
-    "load_config",
+    "load_global_config",
     "load_member_config",
-    "save_member_privilege",
-    "load_user_setting",
-    "config"
+    "save_member_config"
 ]
