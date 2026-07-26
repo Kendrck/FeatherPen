@@ -1,0 +1,79 @@
+/* 文件路径：FeatherPen/web/assets/css/main.css */
+/* GB/T 8567 V1.0.0 前端全局统一样式规范
+约束：全页面共用基础布局、表单、按钮、提示样式，无页面私有冗余样式
+适配桌面PyWebView，仅本地127.0.0.1环境，禁止公网特殊适配 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Microsoft YaHei", system-ui, sans-serif;
+}
+html, body {
+    width: 100vw;
+    height: 100vh;
+    background-color: #f5f7fa;
+    color: #222;
+}
+/* 登录/通用卡片容器 */
+.login-box, panel-card {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 32px;
+}
+/* 表单基础组件 */
+.form-item {
+    margin-bottom: 18px;
+}
+.form-label {
+    display: block;
+    margin-bottom: 6px;
+    color: #444;
+    font-size: 14px;
+}
+.form-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #dcdfe6;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+.form-input:focus {
+    border-color: #409eff;
+}
+/* 全局按钮规范 */
+.btn-primary {
+    width: 100%;
+    height: 42px;
+    background: #409eff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+}
+.btn-primary:hover {
+    background: #66b1ff;
+}
+/* 提示文字样式 */
+.error-tip {
+    height: 20px;
+    font-size: 13px;
+    color: #f53f3f;
+    margin: 4px 0;
+}
+.success-tip {
+    height: 20px;
+    font-size: 13px;
+    color: #00b42a;
+    margin: 4px 0;
+}
+/* 页面标题 */
+.page-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 28px;
+}

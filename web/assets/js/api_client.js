@@ -91,20 +91,20 @@ async function request(endpoint, method = 'GET', data = null, token = null) {
 
 /** @namespace AccountAPI 账户用户模块 (参考 API.md 第二部分) */
 const AccountAPI = {
-    login: (account, password) => request('/account/login', 'POST', { account, password }),
-    register: (account, password) => request('/account/register', 'POST', { account, password }),
-    getInfo: (token) => request('/account/me', 'GET', null, token),
+    login: (uid, password) => request('/user/login', 'POST', { uid, password }),
+    register: (uid, password) => request('/user/register', 'POST', { uid, password }),
+    getInfo: (token) => request('/user/info', 'GET', null, token),
 };
 
 /** @namespace BookAPI 书籍工程模块 (参考 API.md 第三部分) */
 const BookAPI = {
-    create: (data, token) => request('/book/create', 'POST', data, token),
-    getList: (token) => request('/book/list', 'GET', null, token),
+    create: (data, token) => request('/novel/gen_chapter', 'POST', data, token),
+    getList: (token) => request('/snapshot/list', 'GET', null, token),
 };
 
 /** @namespace SignAPI 签到积分模块 (参考 API.md 第四部分) */
 const SignAPI = {
-    checkIn: (token) => request('/sign/checkin', 'POST', null, token),
+    checkIn: (token) => request('/member/toggle_lv9_deduct', 'POST', null, token),
 };
 
 // 暴露全局对象

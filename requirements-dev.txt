@@ -1,4 +1,5 @@
-# FeatherPen V1.0.0 开发环境依赖
+# FeatherPen/requirements-dev.txt
+# 开发、单元测试、代码格式化、Windows打包专用依赖，正式发布运行无需安装
 pytest>=7.0.0
 black>=24.0.0
 flake8>=6.0.0

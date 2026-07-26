@@ -1,0 +1,8 @@
+# FeatherPen/requirements.txt
+# 生产运行依赖清单，服务正常启动、GUI窗口、后端接口、加密、配置解析必需包
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pywebview>=4.4.1
+pyyaml>=6.0.1
+pycryptodome>=3.19.0
+requests>=2.31.0

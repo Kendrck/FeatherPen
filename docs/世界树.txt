@@ -1,0 +1,163 @@
+# FeatherPen/世界树.txt
+# GB/T 8567-2006 FeatherPen V1.0.0 项目物理文件总目录树
+# 同步基准文档：docs/STRUCTURE.md、docs/API_MODULE_SPEC.md
+# 同步规范：docs/dev/Code_And_Doc_Sync_Spec.md
+# 新增分类划分规则：仅补充条目、不删除原有目录结构
+# 文件状态分类注释说明：
+# 存在：磁盘真实存在、业务正常运行必需文件
+# 缺失：架构文档登记但未创建，程序依赖，需手动新建
+# 废弃：磁盘仍保留，永久停用禁止调用，待清理
+# 已删除：黑名单条目，磁盘彻底移除，不再恢复
+FeatherPen/ # 项目根一级目录
+├── .gitignore                          # 存在：Git版本忽略配置文件，屏蔽缓存、日志、打包产物、临时文件
+├── LICENSE                             # 存在：MIT开源协议文本
+├── pyproject.toml                      # 存在：Python标准化构建配置，移除Electron/PyQt6打包配置
+├── requirements.txt                    # 存在：生产环境依赖，包含pywebview，删除electron、PyQt6相关依赖
+├── requirements-dev.txt                # 存在：开发/单元测试依赖清单
+├── init_env.py                         # 存在：跨平台离线环境一键初始化脚本，自动创建data/Book/User/127001游客目录，初始化网络端口配置
+├── main.py                             # 存在：全局唯一程序启动入口：异步启动FastAPI+拉起PyWebView桌面窗口
+├── clean.bat                           # 缺失：GB/T 8567标准化一键清理脚本，文档登记待新建
+├── .github/                            # 存在：CI配置根目录
+│   └── workflows/
+│       └── ci_build.yml                # 存在：全平台离线打包CI脚本
+├── docs/                               # 存在：全套国标归档文档根目录
+│   ├── README.md                       # 存在：项目总览快速上手文档
+│   ├── CHANGELOG.md                    # 存在：版本迭代变更日志
+│   ├── STRUCTURE.md                    # 存在：项目三级架构归档总文档
+│   ├── DEVELOP.md                      # 存在：开发环境搭建、编码规范指南
+│   ├── API.md                          # 存在：全量后端离线API接口规范（核心接口手册）
+│   ├── COMPATIBILITY.md                # 存在：Windows/macOS/Linux全平台兼容性规范
+│   ├── CONFIG_AND_API_SPEC.md          # 存在：全局配置文件、网络通信参数标准
+│   ├── DATABASE_SCHEMA.md              # 存在：SQLite本地数据库表结构、索引规范
+│   ├── DEPLOYMENT_GUIDE.md             # 存在：全平台打包、部署交付指南
+│   ├── PROJECT_OVERVIEW.md             # 存在：项目定位、离线隐私承诺、技术栈总说明
+│   ├── ACCOUNT_SPEC.md                 # 存在：离线账号、会员Lv0~Lv9权限、输入校验完整规范
+│   ├── YESAPI_ACCOUNT.md               # 存在：预留云端账号扩展规范（V1.0不实现）
+│   ├── PRESS_TEST.md                   # 存在：压测规范，Lv9特权账号专属压测解锁规则
+│   ├── local_member_config_v1.0.0.json # 存在：会员等级配置标准模板
+│   ├── dev/                            # 存在：开发规范子目录
+│   │   ├── Project_Structure.md        # 存在：开发侧目录解读
+│   │   ├── UI_Compatibility_Spec.md    # 存在：前端WebUI跨平台兼容规范
+│   │   ├── Code_Style.md               # 存在：Python/JS/HTML国标编码注释规范
+│   │   ├── Test_Guide.md               # 存在：单元测试编写、执行规范
+│   │   ├── Build_Guide.md              # 存在：build.bat/setup.bat打包脚本使用说明
+│   │   └── Code_And_Doc_Sync_Spec.md   # 存在：代码与文档同步强制规范
+│   ├── user/                           # 存在：用户使用文档子目录
+│   │   ├── Install_Guide.md            # 存在：用户安装启动教程
+│   │   ├── Language_Spec.md            # 存在：前端i18n多语言规范
+│   │   ├── Data_Import_Export.md       # 存在：小说工程快照导入导出规范
+│   │   └── FAQ.md                      # 存在：用户常见问题、端口冲突、登录报错解决方案
+│   └── assets/                         # 存在：文档配图、配置模板资源
+├── src/                                # 存在：后端源码根目录
+│   ├── __init__.py                     # 存在：后端根包初始化
+│   ├── gui/                            # 缺失：GUI窗口三级目录，文档登记未创建
+│   │   ├── __init__.py                 # 缺失：GUI模块导出标识文件
+│   │   └── web_window.py               # 缺失：PyWebView桌面窗口、后端轮询逻辑文件
+│   ├── account/                        # 存在：账号权限模块
+│   │   ├── __init__.py                 # 存在
+│   │   ├── local_login.py              # 存在：后端账号密码国标正则双层校验核心逻辑
+│   │   ├── member_ctrl.py              # 存在：会员等级权限控制、积分读取逻辑
+│   │   └── point_system.py             # 存在：全局积分统一管理，固定积分999999999
+│   ├── config/                         # 存在：配置读取模块
+│   │   ├── __init__.py                 # 存在
+│   │   └── config_loader.py            # 存在：配置加载器，优先级：内置默认 < config.yaml < 环境变量（废弃load_config）
+│   ├── core/                           # 存在：AI生成核心模块
+│   │   ├── __init__.py                 # 存在
+│   │   ├── llm_api.py                  # 存在：本地大模型推理接口封装（127.0.0.1:1234/v1）
+│   │   ├── memory_filter.py            # 存在：对话记忆过滤脱敏逻辑
+│   │   ├── role_extract.py             # 存在：小说人物角色自动提取
+│   │   ├── novel_auto_gen.py           # 存在：章节、大纲自动生成核心业务
+│   │   ├── world_check.py              # 存在：世界设定一致性校验功能
+│   │   └── progress_monitor.py         # 存在：AI生成进度监控
+│   ├── database/                       # 存在：数据库操作模块
+│   │   ├── __init__.py                 # 存在
+│   │   ├── db_sqlite.py                # 存在：SQLite数据库连接、通用操作封装（废弃db_get_user_info）
+│   │   ├── monitor_db.py               # 存在：运行日志数据库读写
+│   │   └── sql_init.sql                # 存在：SQLite初始化脚本，local_user表唯一索引创建
+│   └── utils/                          # 存在：通用工具包
+│       ├── __init__.py                 # 存在
+│       ├── monitor/
+│       │   ├── monitor_scheduler.py    # 存在：后台监控定时任务调度
+│       │   └── log_writer.py           # 存在：日志自动脱敏，密钥账号不明文输出
+│       ├── process/                    # 存在：子进程管理工具
+│       └── i18n/                       # 存在：多语言翻译工具
+├── web/                                # 存在：前端静态页面根目录
+│   ├── index.html                      # 存在：桌面窗口首页，内置前端账号密码实时校验JS
+│   ├── assets/
+│   │   ├── css/
+│   │   │   └── main.css                # 存在：全局前端样式统一规范
+│   │   ├── js/
+│   │   │   └── api_client.js            # 存在：前端接口请求统一封装
+│   │   └── i18n/                       # 存在：多语言文本资源
+│   ├── pages/
+│   │   ├── login.html                  # 存在：独立登录页面，前端实时输入校验拦截非法账号密码
+│   │   ├── workbench.html              # 存在：小说创作工作台主页面
+│   │   ├── member.html                 # 存在：会员等级、积分、特权开关面板
+│   │   ├── model_setting.html          # 存在：本地LLM模型地址配置页
+│   │   ├── monitor.html                # 存在：运行监控、token、生成进度面板
+│   │   └── snapshot_export.html        # 存在：小说工程快照导出页面
+│   └── public/
+│       └── file_handler.js             # 存在：本地文件读写、快照导出工具JS
+├── tests/                              # 存在：单元测试根目录
+│   ├── __init__.py                     # 存在
+│   ├── account/                        # 存在：账号校验单元测试用例
+│   └── core/pressure/                  # 存在：Lv9压测功能单元测试
+├── runtime/                            # 存在：运行时缓存日志目录
+│   ├── logs/
+│   │   ├── monitor_log/
+│   │   │   └── monitor.log             # 存在：后台监控日志
+│   │   ├── runtime_log/
+│   │   │   └── runtime.log             # 存在：程序主运行日志
+│   │   └── token_flow_log/
+│       └── token_flow.log              # 存在：AI token消耗日志
+│   ├── cache/                          # 存在：临时缓存文件目录
+│   └── temp/                           # 存在：临时导出文件目录
+├── data/                               # 存在：业务持久数据目录
+│   ├── Book/
+│   │   ├── User/
+│   │   │   └── 127001/                # 存在：Lv0离线游客固定数据目录，init_env自动生成
+│   │   └──【自定义书名】/              # 存在：用户独立小说工程目录
+│   │       ├── db/
+│   │       ├── chapters/
+│   │       ├── vector/
+│   │       └── snapshot/
+│   └── database/featherpen.db          # 存在：全局账号加密数据库存放目录
+├── assets/                             # 存在：全局静态资源
+│   ├── lib/                            # 存在：本地第三方静态库
+│   ├── fonts/                          # 存在：桌面端字体资源
+│   └── images/                         # 存在：UI图片、图标资源
+├── dist/                               # 存在：全平台打包输出产物目录
+│   ├── FeatherPen_V1.0.0_Windows_Setup.exe    # 存在：Windows安装包
+│   ├── FeatherPen_V1.0.0_Windows_Portable.zip # 存在：Windows绿色压缩包
+│   ├── FeatherPen_V1.0.0_macOS.dmg            # 存在：Mac安装包
+│   ├── FeatherPen_V1.0.0_Linux.AppImage        # 存在：Linux便携包
+│   ├── FeatherPen_V1.0.0_amd64.deb            # 存在：Deb系安装包
+│   ├── FeatherPen_V1.0.0_amd64.rpm            # 存在：RPM系安装包
+│   ├── FeatherPen_V1.0.0_Web_Docker.zip        # 存在：Web容器包
+│   ├── FeatherPen_V1.0.0_Android.apk           # 存在：安卓安装包
+│   └── FeatherPen_V1.0.0_Chrome_Plugin.zip     # 存在：浏览器插件包
+├── config.yaml                         # 存在：全局网络、离线安全固化配置
+├── member_config.json                  # 存在：Lv0~Lv9会员等级、权限、积分全局配置
+├── .env.example                        # 存在：环境变量覆盖配置模板
+├── build.bat                           # 存在：Windows一键打包脚本
+└── setup.bat                           # 存在：Windows环境初始化脚本
+
+# -------------------------- 废弃条目（磁盘存在、永久停用、待清理）--------------------------
+# *.spec : 废弃：PyInstaller打包临时配置，clean.bat自动删除
+# crash_error.log : 废弃：崩溃临时日志，程序运行自动生成清理
+# all_code.txt : 废弃：旧代码汇总草稿，无任何业务依赖
+# temp_dedup.py : 废弃临时文本去重脚本，全程不再调用
+# __pycache__、*.pyc、*.pyo : 废弃Python编译缓存，清理脚本一键清除
+# .venv/ : 废弃虚拟环境目录，禁止提交仓库、打包携带
+# -------------------------- 已删除条目（黑名单、磁盘永久移除、不再重建）--------------------------
+# ui/目录 : 已删除：旧Qt桌面窗口目录，全局黑名单废弃
+# electron/目录 : 已删除：Electron桌面框架目录，永久移除
+# load_config()、db_get_user_info 函数 : 已删除源码内旧接口，全局禁用
+# 窗口原生【优质打印】复选框、后端调试JSON返回逻辑 : 已删除前后端调试代码
+# 8位云端UID、YesApi、cloud_login整套云端业务代码 : 已删除云端对接模块
+# V1.0.0 统一变更归档
+1. 新增三级目录 src/gui（当前状态：缺失）
+2. 新增文件清单：FeatherPen/src/gui/__init__.py、FeatherPen/src/gui/web_window.py、FeatherPen/clean.bat（全部缺失）
+3. 同步修改源码：main.py、src/server/http_server.py（存在，需覆盖标准代码）
+4. 统一废弃内容清理：移除窗口原生【优质打印】调试复选框、后端调试JSON输出文本
+5. 配套约束更新：全局清除load_config废弃调用，全部统一使用load_global_config
