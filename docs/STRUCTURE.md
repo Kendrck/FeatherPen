@@ -56,7 +56,7 @@ FeatherPen/
 │   │   └── point_system.py             # 积分扣减逻辑，白名单UID自动豁免扣费
 │   ├── config/
 │   │   ├── __init__.py
-│   │   └── config_loader.py            # 读取yaml/环境变量加载端口，废弃load_config旧函数
+│   │   └── config_loader.py            # 读取yaml/环境变量加载端口，废弃load_config
 │   ├── core/
 │   │   ├── __init__.py
 │   │   ├── llm_api.py                  # LLM推理通信，固定端口1234
@@ -68,7 +68,7 @@ FeatherPen/
 │   ├── database/
 │   │   ├── __init__.py
 │   │   ├── init_db.py                  # SQLite一键初始化脚本
-│   │   ├── db_sqlite.py                # 账号CRUD封装，废弃db_get_user_info旧方法
+│   │   ├── db_sqlite.py                # 账号CRUD封装，废弃db_get_user_info
 │   │   ├── monitor_db.py               # 监控日志持久入库
 │   │   └── sql_init.sql                # 建表+预置10组特权UID白名单账号
 │   └── utils/
@@ -128,7 +128,7 @@ FeatherPen/
 │   ├── FeatherPen_V1.0.0_Android.apk
 │   └── FeatherPen_V1.0.0_VSCode_Plugin.zip
 ├── config.yaml                         # 全局端口配置源 Web:6554 LLM:1234
-├── member_config.json                  # 特权UID、会员等级配置文件
+├── member_config.json                  # 特权UID白名单、会员等级配置文件
 ├── .env.example                        # 环境变量模板 FP_NETWORK_PREFERRED_PORT=6554
 ├── build.bat                           # Windows一键打包脚本
 └── setup.bat                           # Windows环境初始化脚本
@@ -136,12 +136,12 @@ FeatherPen/
 1. FeatherPen/config.yaml
 标准化注释：全局唯一端口配置中心，禁止代码硬编码；绑定127.0.0.1，禁用0.0.0.0；仅.env覆盖Web端口
 端口参数：network.preferred_port=6554、llm.local_api_port=1234
-容错规则：6554端口占用自动分配空闲端口；1234固定无自动分配逻辑
+容错规则：6554端口占用自动分配空闲端口；1234固定，无自动分配逻辑
 读取依赖：src/config/config_loader.py、src/server/http_server.py、src/core/llm_api.py、web/assets/js/api_client.js、web/pages/model_setting.html
 2. FeatherPen/src/config/config_loader.py
 注释：解析yaml+环境变量，非法端口自动回落默认；废弃load_config
 关联端口：6554、1234
-导出函数：load_global_config()、load_member_config()、save_member_config()
+导出函数：load_global_config() / load_member_config() / save_member_config()
 环境变量：FP_NETWORK_PREFERRED_PORT（仅控制Web端口）
 3. FeatherPen/src/server/http_server.py
 注释：FastAPI后台服务，基准/api/v1，三层账号校验接口
@@ -178,34 +178,34 @@ FeatherPen/member_config.json
 FeatherPen/web/assets/css/main.css
 FeatherPen/web/public/file_handler.js
 ## 第三部分 GB/T 8567 全局端口强制规范
-1. 层级约束：仅三级config.yaml存放端口配置，一二目录禁止新增配置文件
+1. 层级约束：仅三级config.yaml存放端口，一二目录禁止新增配置文件
 2. 安全约束：所有服务仅本地回环监听，无公网开放逻辑
 3. 参数固化：network.preferred_port=6554，llm.local_api_port=1234
 4. 容错分层：Web 6554占用自动遍历空闲端口；LLM 1234固定端口不切换
 5. 前后统一：前端禁止写死端口数字，全部动态拉取；后端统一调用config_loader
-6. 追溯要求：端口/文件变更必须同步STRUCTURE.md、API_MODULE_SPEC.md
+6. 追溯要求：端口/文件修改必须同步本文+API_MODULE_SPEC.md
 ## 第四部分 全局废弃黑名单（永久禁用）
 ### 废弃函数
 1. load_config → 替换为load_global_config
 2. db_get_user_info → 替换为get_account_info
 3. 旧SQLiteDB类
 ### 废弃业务
-8位云端UID、YesApi对接、cloud_login云端登录接口
+8位云端UID、YesApi、cloud_login云端登录接口
 ### 废弃目录
 ui/、electron（无代码、无打包分支）
 ### 废弃硬编码
-代码内直接书写6554/1234数字
+代码直接书写6554/1234数字
 ### 废弃文档
 docs/YESAPI_ACCOUNT.md（已物理删除，目录树移除）
 ## 第五部分 V1.0.0 标准化变更归档清单
 1. 移除废弃文档YESAPI_ACCOUNT.md，同步两份架构文档目录树
 2. 全局清理8位UID、YesApi、cloud_login、Electron/PyQt6全部冗余描述
-3. config_loader废弃load_config，统一标准load_global_config
+3. config_loader废弃load，统一标准load_global_config
 4. db_sqlite废弃db_get_user_info，统一get_account_info
 5. api_client移除端口硬编码，改为/status动态获取
 6. init_env新增小说四级目录自动创建逻辑
-7. 核心权限重构：取消Lv9自带积分、压测特权；权限唯一依据为PRIVILEGE_UID白名单，Lv9仅扩容章节上限
-8. 端口规则分层校准：Web自动分配，LLM端口固定不变
+7. 核心权限重构：取消Lv9自带积分、压测特权；权限唯一依据为特权UID白名单，Lv9仅扩容生成上限
+8. 端口规则分层校准：Web自动分配，LLM 1234固定不变
 9. 同步更新API_MODULE_SPEC.md目录、函数、接口注释、废弃清单
 10. 全docs清理V2草稿、迭代备注，仅保留国标业务注释
 ## 第六部分 分层架构国标说明

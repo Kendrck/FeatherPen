@@ -1,6 +1,6 @@
 # FeatherPen/docs/API_MODULE_SPEC.md
 # GB/T 8567 V1.0.0 软件模块、端口、接口统一基准文档
-# 同步强制规则：修改端口/函数/接口/文件，同步更新本文、STRUCTURE.md
+# 同步强制规则：修改端口/函数/接口/文件，同步更新本文 + docs/STRUCTURE.md
 # 约束：仅国标业务注释，删除调试、草稿、临时冗余内容，零冗余
 # 第一部分 File Path_世界树完整三级文件结构树
 FeatherPen/
@@ -18,7 +18,7 @@ FeatherPen/
 │   ├── README.md                       # 项目快速上手总览
 │   ├── CHANGELOG.md                    # 版本变更归档日志
 │   ├── STRUCTURE.md                    # 三级架构主归档文档
-│   ├── API_MODULE_SPEC.md              # 本文档，端口/函数/接口基准
+│   ├── API_MODULE_SPEC.md              # 本文档，端口/函数基准
 │   ├── API.md                          # HTTP完整接口手册
 │   ├── COMPATIBILITY.md                # 多系统兼容国标
 │   ├── CONFIG_AND_API_SPEC.md          # 端口通信配置细则
@@ -48,8 +48,8 @@ FeatherPen/
 │   ├── account/
 │   │   ├── __init__.py
 │   │   ├── local_login.py              # 游客、特权UID白名单常量、账号正则
-│   │   ├── member_ctrl.py              # 权限判定唯一依据为UID白名单，Lv9无积分/压测特权
-│   │   └── point_system.py             # 积分扣减，白名单UID自动豁免扣费
+│   │   ├── member_ctrl.py              # 权限判定唯一依据为白名单，Lv9无积分/压测特权
+│   │   └── point_system.py             # 积分扣减，白名单UID自动豁免
 │   ├── config/
 │   │   ├── __init__.py
 │   │   └── config_loader.py            # 读取yaml/env端口，废弃load_config
@@ -70,7 +70,7 @@ FeatherPen/
 │   └── utils/
 │       ├── __init__.py
 │       ├── monitor/
-│       │   ├── monitor_scheduler.py    # 硬件监控定时调度
+│       │   ├── monitor_scheduler.py    # 硬件监控定时
 │       │   └── log_writer.py           # 日志脱敏工具
 │       ├── process/                    # 跨平台子进程工具
 │       └── i18n/                       # 全局多语言工具
@@ -111,7 +111,7 @@ FeatherPen/
 │   └── images/
 ├── dist/各类平台打包产物
 ├── config.yaml                         # Web6554 LLM1234端口配置源
-├── member_config.json                  # 特权UID、会员等级配置
+├── member_config.json                  # 特权UID白名单配置
 ├── .env.example                        # 端口环境变量模板
 ├── build.bat / setup.bat
 # 第二部分 全文件端口/函数/接口标准化明细
@@ -148,22 +148,22 @@ get_user_level(uid)：读取会员等级（仅控制章节生成上限）
 is_privilege_uid(uid)：积分豁免、压测权限唯一判定条件
 toggle_point_deduct_switch(uid)：仅白名单UID可调用，纯Lv9账号返回403
 unlock_pressure_mode(uid)：仅白名单UID可调用
-注释标准：Lv9仅扩容生成上限，无积分、压测专属特权
+注释标准：Lv9仅扩容章节上限，无积分、压测专属特权
 ## 6 FeatherPen/src/account/point_system.py
 文件路径：FeatherPen/src/account/point_system.py
 无端口依赖
 核心函数consume_point(uid, cost)
-扣减逻辑：is_privilege_uid=true直接跳过扣费；纯Lv9标准账号正常扣积分
+扣减逻辑：is_privilege_uid=true直接跳过扣费；纯Lv9标准账号正常扣费
 ## 7 FeatherPen/src/core/llm_api.py
 文件路径：FeatherPen/src/core/llm_api.py
 通信端口1234，推理地址固定模板，导出llm_client.generate_text()
 ## 8 FeatherPen/src/core/novel_auto_gen.py
 文件路径：FeatherPen/src/core/novel_auto_gen.py
-依赖1234端口、point_system、member_ctrl，关联POST /api/v1/novel/gen_chapter
+依赖端口1234，依赖point_system、member_ctrl，关联POST /api/v1/novel/gen_chapter
 ## 9 FeatherPen/web/assets/js/api_client.js
 文件路径：FeatherPen/web/assets/js/api_client.js
 基准地址 http://127.0.0.1:{web_port}/api/v1
-端口动态从/status接口获取，禁止硬编码；常量完整复制后端白名单列表
+端口动态从/status拉取，禁止硬编码；常量完整复制后端白名单列表
 ## 10 全局HTTP接口基准 /api/v1
 ### 系统基础
 GET /api/v1/status：获取端口、版本、游客UID
@@ -174,7 +174,7 @@ GET /api/v1/user/info：账号权限信息
 POST /api/v1/user/register：新建本地账号
 ### 会员积分模块
 GET /api/v1/member/level_config：读取全套等级参数
-POST /api/v1/member/toggle_lv9_deduct：仅PRIVILEGE_UID白名单可调用，非白名单返回403
+POST /api/v1/member/toggle_lv9_deduct：仅白名单账号可调用，非白名单返回403
 ### AI生成模块
 POST /api/v1/novel/gen_chapter：白名单UID自动豁免积分扣费
 POST /api/v1/novel/gen_role / gen_timeline / world_check
@@ -193,8 +193,8 @@ GET /api/config/network_info
 Python：函数snake_case、类PascalCase、全局常量全大写
 JS：函数camelCase、全局常量全大写
 HTTP语义：GET查询、POST提交、PUT更新、DELETE删除
-## 13 全局废弃黑名单（与STRUCTURE.md同步）
+## 13 全局废弃黑名单（与STRUCTURE.md完全同步）
 废弃函数：load_config、db_get_user_info、旧SQLiteDB类
-废弃业务：8位云端UID、YesApi、cloud_login云端接口
+废弃业务：8位UID、YesApi、cloud_login云端接口
 废弃目录：ui/、electron，无导入无打包分支
-废弃硬编码：代码直接书写6554/1234数字
+废弃硬编码：直接书写6554/1234数字

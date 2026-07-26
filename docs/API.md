@@ -37,10 +37,10 @@ Content-Type: application/json
 ### GET /api/v1/member/level_config
 用途：读取全套Lv0~Lv9会员等级配置参数
 ### POST /api/v1/member/toggle_lv9_deduct
-权限限制：仅PRIVILEGE_UID白名单账号可调用；纯Lv9标准账号请求返回403；功能为切换积分豁免开关并持久写入member_config.json
+权限限制：仅特权UID白名单账号可调用；纯Lv9标准账号请求返回403；功能为切换积分豁免开关并持久写入member_config.json
 ## 四、AI小说生成模块
 ### POST /api/v1/novel/gen_chapter
-生成章节接口，自动校验当前UID是否在特权白名单，判定是否扣减积分
+生成章节接口，自动校验当前UID是否在白名单，判定是否扣减积分
 ### POST /api/v1/novel/gen_role
 人物自动提取接口
 ### POST /api/v1/novel/gen_timeline
