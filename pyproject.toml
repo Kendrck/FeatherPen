@@ -8,25 +8,6 @@ name = "FeatherPen"
 version = "1.0.0"
 authors = [{ name = "Kendrck" }]
 description = "本地离线优先跨平台AI长篇小说生成工具"
-requires-python = ">=3.10"
-dependencies = []
-
-[project.optional-dependencies]
-dev = [
-  "pytest>=7.0.0",
-  "black>=24.0.0",
-  "flake8>=6.0.0"
-]
-
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "FeatherPen"
-version = "1.0.0"
-author = "Kendrck"
-description = "FeatherPen 羽笔 V1.0.0 国标AI长篇小说创作工具"
 long_description = "基于GB/T 8567国标规范开发的五级世界树架构AI长篇创作工具，支持亿级字数稳定生成、剧情校正、分层记忆、权限特权体系"
 long_description_content_type = "text/markdown"
 license = {file = "LICENSE"}
@@ -37,6 +18,14 @@ classifiers = [
     "Topic :: Software Development :: Build Tools"
 ]
 requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0.0",
+  "black>=24.0.0",
+  "flake8>=6.0.0"
+]
 
 [tool.setuptools.packages.find]
 where = ["src", "ui"]

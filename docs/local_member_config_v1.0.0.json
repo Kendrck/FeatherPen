@@ -1,22 +1,22 @@
 {
-  "desc": "V1.0纯离线本地会员配置，仅6位数字UID，云端功能仅V2.0规划，V1.0无业务代码",
+  "desc": "V1.0纯离线会员配置，仅6位数字UID；云端相关功能仅V2.0规划，V1.0无落地代码",
   "default_member_list": [
-    {"level": 1, "uid": "111111", "pwd": "passwd", "point": 999999999, "desc": "Lv1 初闻 本地离线测试账号"},
-    {"level": 2, "uid": "222222", "pwd": "passwd", "point": 999999999, "desc": "Lv2 薄名 本地离线测试账号"},
-    {"level": 3, "uid": "333333", "pwd": "passwd", "point": 999999999, "desc": "Lv3 浅露 本地离线测试账号"},
-    {"level": 4, "uid": "444444", "pwd": "passwd", "point": 999999999, "desc": "Lv4 知名 本地离线测试账号"},
-    {"level": 5, "uid": "555555", "pwd": "passwd", "point": 999999999, "desc": "Lv5 显赫 本地离线测试账号"},
-    {"level": 6, "uid": "666666", "pwd": "passwd", "point": 999999999, "desc": "Lv6 盛传 本地离线测试账号"},
-    {"level": 7, "uid": "777777", "pwd": "passwd", "point": 999999999, "desc": "Lv7 昭著 本地离线测试账号"},
-    {"level": 8, "uid": "888888", "pwd": "passwd", "point": 999999999, "desc": "Lv8 传奇 本地离线测试账号"},
-    {"level": 9, "uid": "999999", "pwd": "passwd", "point": 999999999, "desc": "Lv9 不朽 本地离线特权账号，积分豁免开关"},
-    {"level": 9, "uid": "000000", "pwd": "passwd", "point": 999999999, "desc": "Lv9 不朽 本地离线特权账号，积分豁免开关"}
+    {"level": 1, "uid": "111111", "pwd": "passwd", "point": 999999999, "desc": "特权UID白名单账号，对应Lv1等级；等级仅扩容章节生成上限，积分豁免、压测为UID专属特权"},
+    {"level": 2, "uid": "222222", "pwd": "passwd", "point": 999999999, "desc": "特权UID白名单账号，对应Lv2等级；等级仅扩容章节生成上限，积分豁免、压测为UID专属特权"},
+    {"level": 3, "uid": "333333", "pwd": "passwd", "point": 999999999, "desc": "特权UID白名单账号，对应Lv3等级；等级仅扩容章节生成上限，积分豁免、压测为UID专属特权"},
+    {"level": 4, "uid": "444444", "pwd": "passwd", "point": 999999999, "desc": "特权UID白名单账号，对应Lv4等级；等级仅扩容章节生成上限，积分豁免、压测为UID专属特权"},
+    {"level": 5, "uid": "555555", "pwd": "passwd", "point": 999999999, "desc": "特权UID白名单账号，对应Lv5等级；等级仅扩容章节生成上限，积分豁免、压测为UID专属特权"},
+    {"level": 6, "uid": "666666", "pwd": "passwd", "point": 999999999, "desc": "特权UID白名单账号，对应Lv6等级；等级仅扩容章节生成上限，积分豁免、压测为UID专属特权"},
+    {"level": 7, "uid": "777777", "pwd": "passwd", "point": 999999999, "desc": "特权UID白名单账号，对应Lv7等级；等级仅扩容章节生成上限，积分豁免、压测为UID专属特权"},
+    {"level": 8, "uid": "888888", "pwd": "passwd", "point": 999999999, "desc": "特权UID白名单账号，对应Lv8等级；等级仅扩容章节生成上限，积分豁免、压测为UID专属特权"},
+    {"level": 9, "uid": "999999", "pwd": "passwd", "point": 999999999, "desc": "特权UID白名单账号，对应Lv9等级；等级仅扩容章节生成上限，积分豁免、压测为UID专属特权"},
+    {"level": 9, "uid": "000000", "pwd": "passwd", "point": 999999999, "desc": "特权UID白名单账号，对应Lv9等级；等级仅扩容章节生成上限，积分豁免、压测为UID专属特权"}
   ],
   "cloud_privilege": {
     "lv9_uid_list": [],
     "skip_point_deduct": false,
     "pressure_mode_unlock": false,
-    "note": "云端账号、在线同步功能仅V2.0迭代，V1.0不落地编码"
+    "note": "云端账号、在线同步仅V2.0迭代，V1.0不编写业务代码"
   },
   "auto_rule": {
     "check_chapter_limit": 50,
@@ -46,7 +46,7 @@
       "monitor_history_replay": true,
       "init_point": 999999999,
       "daily_point_limit": 10,
-      "desc": "离线游客UID=127001，豁免账号格式校验，无网络交互"
+      "desc": "离线游客UID=127001，豁免账号格式校验，无网络交互功能"
     },
     {
       "level": 1,
@@ -60,7 +60,7 @@
       "monitor_ai_progress": false,
       "monitor_history_replay": false,
       "init_point": 999999999,
-      "desc": "本地离线标准账号"
+      "desc": "标准会员等级，仅扩容章节生成上限；积分豁免、压测为特权UID白名单专属特权"
     },
     {
       "level": 2,
@@ -74,7 +74,7 @@
       "monitor_ai_progress": false,
       "monitor_history_replay": false,
       "init_point": 999999999,
-      "desc": "本地离线标准账号"
+      "desc": "标准会员等级，仅扩容章节生成上限；积分豁免、压测为特权UID白名单专属特权"
     },
     {
       "level": 3,
@@ -88,7 +88,7 @@
       "monitor_ai_progress": true,
       "monitor_history_replay": false,
       "init_point": 999999999,
-      "desc": "本地离线标准账号"
+      "desc": "标准会员等级，仅扩容章节生成上限；积分豁免、压测为特权UID白名单专属特权"
     },
     {
       "level": 4,
@@ -102,7 +102,7 @@
       "monitor_ai_progress": true,
       "monitor_history_replay": false,
       "init_point": 999999999,
-      "desc": "本地离线标准账号"
+      "desc": "标准会员等级，仅扩容章节生成上限；积分豁免、压测为特权UID白名单专属特权"
     },
     {
       "level": 5,
@@ -116,7 +116,7 @@
       "monitor_ai_progress": true,
       "monitor_history_replay": true,
       "init_point": 999999999,
-      "desc": "本地离线标准账号"
+      "desc": "标准会员等级，仅扩容章节生成上限；积分豁免、压测为特权UID白名单专属特权"
     },
     {
       "level": 6,
@@ -130,7 +130,7 @@
       "monitor_ai_progress": true,
       "monitor_history_replay": true,
       "init_point": 999999999,
-      "desc": "本地离线标准账号"
+      "desc": "标准会员等级，仅扩容章节生成上限；积分豁免、压测为特权UID白名单专属特权"
     },
     {
       "level": 7,
@@ -144,7 +144,7 @@
       "monitor_ai_progress": true,
       "monitor_history_replay": true,
       "init_point": 999999999,
-      "desc": "本地离线标准账号"
+      "desc": "标准会员等级，仅扩容章节生成上限；积分豁免、压测为特权UID白名单专属特权"
     },
     {
       "level": 8,
@@ -157,7 +157,7 @@
       "monitor_ai_progress": true,
       "monitor_history_replay": true,
       "init_point": 999999999,
-      "desc": "本地离线民用满级账号"
+      "desc": "标准会员等级，仅扩容章节生成上限；积分豁免、压测为特权UID白名单专属特权"
     },
     {
       "level": 9,
@@ -171,7 +171,7 @@
       "monitor_ai_progress": true,
       "monitor_history_replay": true,
       "init_point": 999999999,
-      "desc": "本地离线特权账号，积分豁免、压测解锁"
+      "desc": "仅无上限扩容章节生成数量；等级本身无积分豁免、压测权限，两项特权仅特权UID白名单账号可解锁"
     }
   ]
 }
