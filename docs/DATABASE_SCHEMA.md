@@ -1,40 +1,50 @@
-# FeatherPen - 数据库与持久化规范 (V1.0.0)
+# FeatherPen/docs/DATABASE_SCHEMA.md
+# GB/T 8567 SQLite数据库完整国标规范
+## 1 基础信息
+数据库引擎：SQLite3 WAL并发模式
+文件路径：FeatherPen/data/database/featherpen.db
+编码：UTF-8无BOM
+自动初始化：src/database/sql_init.sql，程序启动自动执行
 
-## 1. 数据库引擎
-- **类型**: SQLite 3
-- **文件位置**: `data/featherpen.db`
-- **连接模式**: WAL (Write-Ahead Logging) 以支持并发读取
+## 2 核心主表 local_user（账号表）
+CREATE TABLE IF NOT EXISTS local_user (
+    uid CHAR(64) PRIMARY KEY,
+    level TINYINT DEFAULT 0,
+    password VARCHAR(128) NOT NULL,
+    point BIGINT DEFAULT 999999999,
+    bind_email VARCHAR(64) NULL,
+    bind_phone VARCHAR(20) NULL,
+    desc_text VARCHAR(256) NULL,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_login_time DATETIME NULL,
+    status TINYINT DEFAULT 1
+);
+唯一索引约束：
+CREATE UNIQUE INDEX idx_user_email ON local_user(bind_email);
+CREATE UNIQUE INDEX idx_user_phone ON local_user(bind_phone);
 
-## 2. 核心表结构定义
+字段说明：
+uid：账号，127001游客 / 6位特权 / 自定义账号
+level：会员等级0~9
+password：本地存储密码，前端传参后端校验
+point：全局固定积分999999999
+bind_email：绑定邮箱全局唯一
+bind_phone：绑定手机号全局唯一
+create_time：账号创建时间
+last_login_time：上次登录时间
+status：1正常 0禁用
 
-### 2.1 `accounts` (账号管理表)
-存储所有登录账号的基础信息与状态。
+## 3 配套业务表
+1. sign_record：每日签到积分流水，关联uid
+2. book_project：小说工程基础信息，存储工程名、创建时间、路径
+3. monitor_log：AI/硬件监控持久日志，脱敏账号密钥
 
-| 字段名 | 类型 | 约束 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `id` | INTEGER | PRIMARY KEY AUTOINCREMENT | 唯一标识符 |
-| `username` | TEXT | UNIQUE NOT NULL | 登录用户名 |
-| `password_hash` | TEXT | NOT NULL | 加密后的密码哈希值 |
-| `level` | INTEGER | DEFAULT 1 | 账号等级 (1-9) |
-| `is_vip` | BOOLEAN | DEFAULT FALSE | 是否为 VIP 账号 |
-| `status` | TEXT | DEFAULT 'active' | 状态: active, banned, expired |
-| `last_login` | DATETIME | - | 最后登录时间戳 |
+## 4 初始化内置数据
+自动插入特权账号：000000~999999十级6位账号，统一密码passwd
+Lv0游客无需预插入，登录时自动匹配127001规则
 
-### 2.2 `points_log` (积分流水表)
-记录所有积分变动，用于审计与回放。
-
-| 字段名 | 类型 | 约束 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `id` | INTEGER | PRIMARY KEY AUTOINCREMENT | 流水ID |
-| `account_id` | INTEGER | FOREIGN KEY | 关联 accounts.id |
-| `change_amount` | INTEGER | NOT NULL | 变动数值 (+/-) |
-| `type` | TEXT | NOT NULL | 类型: sign_in, ad_reward, consume |
-| `created_at` | DATETIME | DEFAULT CURRENT_TIMESTAMP | 发生时间 |
-
-## 3. 索引规范
-- `idx_accounts_username`: 加速用户名查询
-- `idx_points_account_time`: 加速积分流水按账号+时间查询
-
-## 4. 迁移策略
-- 所有表结构变更必须通过 `src/db/migrations/` 下的 SQL 脚本执行。
-- 禁止直接在代码中硬编码 `CREATE TABLE` 语句。
+## 5 数据库操作强制规范
+1. 所有读写统一通过db_sqlite.py封装函数get_db_conn/get_account_info
+2. 禁止项目内直接写原生sqlite3连接代码
+3. 程序启动自动检查表，缺失自动执行建表语句
+4. 无云端同步、数据库远程连接逻辑，纯本地文件存储

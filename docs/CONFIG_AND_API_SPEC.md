@@ -1,44 +1,37 @@
-# 配置规范与接口定义说明书
+# FeatherPen/docs/CONFIG_AND_API_SPEC.md
+# GB/T 8567 全局配置与通信端口国标规范
+## 一、配置加载优先级（从低到高）
+1. 代码内置默认值
+2. config.yaml本地配置文件
+3. 系统环境变量 FP_NETWORK_PREFERRED_PORT（最高优先级）
 
-## 1. 全局运行配置 (config.yaml)
-本文件托管所有业务开关与系统参数，严禁在代码中硬编码配置项。
+## 二、config.yaml固定端口配置节点
+network:
+  bind_address: "127.0.0.1"
+  preferred_port: 6554
+llm:
+  local_api_port: 1234
+约束：禁止在代码中直接写死6554/1234数字，统一由config_loader读取
 
-### 1.1 System 模块
+## 三、环境变量规则
+环境变量名称：FP_NETWORK_PREFERRED_PORT
+仅覆盖Web服务端口，LLM推理端口不受环境变量控制
+值必须1024~65535整数，非法自动回落1234
 
-| 字段 | 类型 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- |
-| run_mode | int | 0 | 运行模式：0=生产环境, 1=调试模式, 2=沙箱测试 |
-| soft_name | str | "FeatherPen" | 软件内部标识符 |
-| db_secret_key | str | - | 数据库加密密钥，生产环境必须修改 |
+## 四、端口容错完整规范
+1. 启动绑定端口捕获OSError占用异常
+2. 自动遍历分配本机空闲端口
+3. 控制台打印当前实际监听端口，前端/api/status同步返回
 
-### 1.2 Signin 模块 (登录与测试)
+## 五、HTTP通信统一规则
+1. 基准URL前缀：http://127.0.0.1:{web_port}/api/v1
+2. 所有接口统一JSON返回结构，错误码全局统一
+3. 前端禁止拼接硬编码地址，调用/status动态获取端口
+4. LLM推理固定地址模板 http://127.0.0.1:{llm.local_api_port}/v1/chat/completions
 
-| 字段 | 类型 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- |
-| yesapi_enable | bool | true | 是否启用 YesApi 接口服务 |
-| test_account_enable | bool | true | 开启18组固定白名单测试账号 |
-| lv9_skip_point_default | bool | true | Lv9 账号默认开启积分豁免 |
+## 六、配置加载标准函数
+统一使用src/config/config_loader内load_global_config()
+废弃旧名称load_config，全项目禁止调用
 
-### 1.3 Point 模块 (积分体系)
-- `daily_sign_point`: 每日签到基础积分 (默认: 100)
-- `ad_reward_point`: 广告观看奖励积分 (默认: 50)
-
-### 1.4 Monitor 模块 (监控与日志)
-- `ai_monitor_refresh_sec`: AI 状态轮询间隔 (秒)
-- `log_keep_days`: 日志自动清理周期 (天)
-
-## 2. 成员配置文件 (member_config.json)
-用于管理多账号体系的差异化配置。
-
-### 2.1 数据结构
-```json
-{
-  "members": [
-    {
-      "id": "user_001",
-      "level": 9,
-      "permissions": ["admin", "skip_verify"],
-      "custom_api_key": "" 
-    }
-  ]
-}
+## 七、配置缺失兜底机制
+init_env.py检测无config.yaml时，自动写入标准6554/1234、127.0.0.1配置模板
